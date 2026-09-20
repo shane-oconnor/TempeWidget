@@ -1,4 +1,4 @@
-# Connect IQ Store listing — draft copy for v1.0.0
+# Connect IQ Store listing — draft copy
 
 App: **Tempe Widget** by ShaneO
 Listing: https://apps.garmin.com/apps/194a50be-400a-432a-9efa-402b4b7cae18
@@ -16,9 +16,24 @@ Update it when the listing changes, and note what actually went live.
 
 The Store version field is free text. It currently reads `0.68 Added EPIX`.
 
+**Undecided, and it needs deciding before submitting.** The tagged v1.0.0 has
+since been followed by four PRs (#12–#15) that add user-visible behaviour —
+`Number of Tempe` actually working, settings applying without a relaunch, the
+glance showing every slot, stale readings fading. Either:
+
 ```
 1.0.0 Added fēnix 9 Pro
 ```
+
+if those are folded in before anything is submitted — nothing has gone to the
+Store yet, so 1.0.0 can still absorb them; or
+
+```
+1.0.1 Added fēnix 9 Pro
+```
+
+if v1.0.0 is treated as already spent. The What's New entry in section 3 is
+written to cover the whole set either way; only the number changes.
 
 ---
 
@@ -29,10 +44,15 @@ This widget allows you to quickly display the current temperature, plus the
 24hr min and max, from up to three sources at the same time - Garmin tempe
 sensors, your watch's built in temperature sensor, or a tempe paired over
 Bluetooth. Swipe up and down to move between them, or use the glance view to
-see all three together.
+see them side by side without opening the widget.
 
-Each of the three slots is configured separately, with its own name, ID and
-calibration offset.
+Each slot is configured separately, with its own name, ID and calibration
+offset.
+
+Number of Tempe - choose 1, 2 or 3. Slots beyond the number you pick are
+hidden, skipped when paging, and no longer searched for, so if you only want
+one tempe and your watch's internal sensor you are not left swiping past an
+empty third screen.
 
 ID - By default this should be "0", which means this will connect to the first
 available Tempe Sensor. If you want to connect to a specific Tempe Sensor then
@@ -65,7 +85,15 @@ I have tested with various batteries, and I'm not sure how accurate the battery
 status is on the tempe. I seem to get a status of BATT_STATUS_OK = 3,
 irrespective of whether the battery is new or old.
 
-White Background - switches the display to dark text on a white background.
+White Background - switches the display to dark text on a white background,
+including the glance view.
+
+Settings take effect straight away. Changing a name, offset, ID or the number
+of slots applies while the widget is open, without closing and reopening it.
+
+A reading that is more than halfway to its timeout is drawn dimmed, so you can
+tell at a glance that a sensor has gone quiet before the value disappears
+altogether.
 
 Debug - if you set this to true, the current ID will be shown on the full widget
 page with each temperature.
@@ -95,6 +123,15 @@ the Connect IQ simulator.
   TempX listing. Check you're happy with this — it's your credit line.
 - Adds the GitHub link in the body. The listing already has a Source Code link
   pointing there, but it's easy to miss.
+- **Corrects a claim that was not true when it was drafted.** The old text
+  here said the glance view showed "all three together". It did not — the
+  glance was pinned to slot 0 and showed that one slot's current, min and max
+  (issue #4). PR #13 made it actually show one column per configured slot, so
+  the claim is now accurate. Worth knowing that it was aspirational, in case a
+  similar line gets written again.
+- Documents **Number of Tempe**, which was in the settings menu from the start
+  but was read by nothing until PR #12 (issue #2).
+- Documents that settings now apply live, and that stale readings dim.
 
 ---
 
@@ -104,8 +141,19 @@ This field holds the whole changelog, so the new entry goes on top and the rest
 stays as it is.
 
 ```
-1.0.0 Added fēnix 9 Pro (51mm)
+1.0.0 Added fēnix 9 Pro, and the fēnix 8 and 9 families
 
+- The "Number of Tempe" setting now works. It has been in the settings menu
+  for years but nothing read it, so all three slots were always active. Pick
+  1, 2 or 3 and the rest are hidden and no longer searched for
+- Settings now apply while the widget is open. Changing a name, offset, ID or
+  the number of slots no longer needs the widget closed and reopened
+- The glance view now shows every slot you have configured, each with its own
+  name. It previously only ever showed the first one, whatever you had set up
+- The glance view now scales to the watch screen and follows the White
+  Background setting, instead of being fixed to one size and always dark
+- A reading more than halfway to its timeout is now drawn dimmed, so a sensor
+  that has gone quiet is visible before the value disappears
 - Fixed sub-zero temperatures reading slightly too warm. Below freezing the
   current reading was out by 0.01 C and the 24hr min and max by 0.1 C
 - Fixed a crash that could occur every few seconds on watches with no stored
@@ -119,6 +167,9 @@ stays as it is.
   being fixed to one size
 - Sharper launcher icon on watches that ask for a larger one, instead of a
   scaled up 40x40
+- Debug logging no longer runs with Debug Mode switched off
+- Cached readings are written to storage only when they change, rather than
+  fifteen times every five seconds
 - Source code published at https://github.com/shane-oconnor/TempeWidget
 
 After updating, temperatures may show "--" once on the first launch while the
@@ -162,8 +213,15 @@ expands each into its marketing names, including the quatix and tactix variants
 that share hardware. The live listing shows 60 rows generated from the 42
 products in 0.68.
 
-So this is **not** copy to update. Uploading the new `.iq` (43 products) adds the
-fēnix 9 Pro rows by itself. Nothing to do by hand.
+So this is **not** copy to update. Uploading the new `.iq` adds the rows by
+itself. Nothing to do by hand.
+
+The product count has moved since this was first drafted: **56**, not 43. The
+manifest picked up the fēnix 8 and fēnix 9 families, plus fr970 and venu2, as
+their device definitions were installed locally. The store export now reports
+100 of 100 devices built. That is a much wider device claim than 0.68 made, and
+none of the new ones have been tested on hardware — worth a moment's thought
+before submitting, since every one of them becomes a row on the listing.
 
 ---
 
@@ -176,12 +234,18 @@ Worth capturing at 466x466 for the fēnix 9 Pro, since the layout rewrite is the
 headline change and the current previews are from the old fixed 260px layout:
 
 1. Full view of a tempe slot showing current, min, max and the battery icon
-2. The glance view
+2. The glance view — now the more interesting shot, since it shows all three
+   slots side by side rather than one
 3. A slot using the internal sensor, showing `--` for min/max, so the caveat in
    the description has a picture to go with it
 
 Note the simulator starts widget apps in glance mode — press Enter/Start to get
 to the full view before capturing.
+
+**The glance layout has never actually been looked at.** Its geometry was
+verified numerically on fēnix 9 Pro 51mm and fēnix 6 at each slot count, but no
+one has seen it render. Capturing screenshot 2 doubles as that check, so do it
+before anything else here.
 
 ---
 
@@ -192,10 +256,14 @@ Graham Heyes, 24 Dec 2025, 5 stars:
 > "Excellent app, especially the offset! Is there a way to hide Tempe1? I only
 > need 1 as well as the internal watch temperature."
 
-That is exactly issue #2 — the `Number of Tempe` setting is already in the
-settings menu but nothing reads it. A paying-attention user asked for the
-feature that is half-built. Worth doing before or soon after this release, and
-worth replying to.
+That was exactly issue #2 — the `Number of Tempe` setting was already in the
+settings menu but nothing read it.
+
+**It is now built** (PR #12). Setting it to 1 leaves him a single tempe, and
+pointing a second slot at -1 gives him the internal watch sensor alongside it,
+which is precisely what he asked for. Worth replying to him when this goes
+live; a 5-star reviewer who asks for a specific feature and then sees it ship
+is worth the two minutes.
 
 For reference, TempX shipped the same thing in its 0.14: "ability to select
 'none' for a tempe".
@@ -204,10 +272,15 @@ For reference, TempX shipped the same thing in its 0.14: "ability to select
 
 ## Before submitting
 
-- [ ] Run `tools/build-matrix.sh` and upload `export/TempeWidget.iq`
+- [ ] Merge PRs #12–#15 and decide the version number (section 1)
+- [ ] Run `tools/build-matrix.sh` from the merged master and upload the
+      rebuilt `export/TempeWidget.iq` — the current one predates all four PRs
+- [ ] Look at the glance view once. It has been measured, never seen
 - [ ] Check the new launcher icon renders correctly on a real device or the
       simulator -- the per-size icons in `resources-icon*/` have never been
-      seen on a watch
+      seen on a watch, and `resources-icon70` is newer still
+- [ ] Decide whether to keep all 56 products or trim the untested ones
+      (section 4)
 - [ ] Confirm the version field, description and What's New above
 - [ ] Capture and replace the screenshots
 - [ ] Remember the listing has 1K+ downloads and a 4.4 rating — this reaches
