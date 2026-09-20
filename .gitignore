@@ -19,3 +19,6 @@ export/
 
 # Anything extracted from docs/store-listing.md for pasting into the portal
 docs/.store-copy/
+
+# simulator run log written by tools/sim-screenshot.sh
+docs/screenshots/.monkeydo.log
