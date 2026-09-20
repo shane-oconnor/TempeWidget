@@ -65,6 +65,9 @@ class TempeWidgetView extends WatchUi.View {
         var clrBack = state.fWhiteBG ? ClrWhite : ClrBlack;
         var clrFore = state.fWhiteBG ? ClrBlack : ClrWhite;
         var i = screenNum;
+        //TempeCount can shrink under us -- the user can change it in the Connect
+        //app while the widget is open -- leaving screenNum on a hidden slot.
+        if (i >= state.cTempe) {i = 0; screenNum = 0;}
         var item = rgTemp[i];
 
         dc.setColor(clrFore, clrBack);
@@ -148,7 +151,7 @@ class TempeWidgetView extends WatchUi.View {
                         xCenter, y, battW, battH);
         }
 
-        drawDots(dc, clrFore, i);
+        drawDots(dc, clrFore, i, state.cTempe);
 
         if (state.fDbg)
         {
@@ -209,10 +212,13 @@ class TempeWidgetView extends WatchUi.View {
     }
 
     //---------------------------------
-    //One dot per slot, sized and spaced off the screen width. At 260px this
-    //reproduces the previous r=3 / 9px-spacing column exactly.
-    function drawDots(dc, primaryColor, i)
+    //One dot per visible slot, sized and spaced off the screen width. At 260px
+    //this reproduces the previous r=3 / 9px-spacing column exactly. With a
+    //single slot there is nothing to page between, so the column is dropped.
+    function drawDots(dc, primaryColor, i, cVis)
     {
+        if (cVis < 2) {return;}
+
         var w = dc.getWidth();
 
         var r = w / 85;
@@ -222,10 +228,10 @@ class TempeWidgetView extends WatchUi.View {
         if (x < r + 1) {x = r + 1;}
 
         var step = r * 3;
-        var yTop = (dc.getHeight() / 2) - ((step * (cTempItem - 1)) / 2);
+        var yTop = (dc.getHeight() / 2) - ((step * (cVis - 1)) / 2);
 
         dc.setColor(primaryColor, ClrTrans);
-        for (var j = 0; j < cTempItem; ++j)
+        for (var j = 0; j < cVis; ++j)
         {
             var yDot = yTop + (step * j);
             dc.drawCircle(x, yDot, r);
