@@ -71,41 +71,57 @@ screenshots are good or whether the glance view looks right.
 
 ## Step 3 - screenshots
 
-Store screenshots should be **fenix 9 Pro 51mm** - the device Shane owns.
+Store screenshots show **fenix 9 Pro 51mm** - the device Shane owns - with the
+watch frame and band, as the simulator draws it. Not the screen-only image that
+`File > Save Screen Capture` writes.
 
 ```
-tools/sim-screenshot.sh
+/path/to/venv/bin/python tools/sim-shots.py           # all three
+/path/to/venv/bin/python tools/sim-shots.py glance    # just one
 ```
 
-This builds, restarts the simulator, loads the widget, and then tells you how
-to capture based on what macOS permits.
+It needs `pyobjc-framework-Quartz` and `pillow` in a venv; the script says so
+if they are missing. It builds, restarts the simulator, sets the launch mode,
+loads, presses the button it needs and captures - unattended.
 
-Capture cannot be fully automated without a permission only Shane can grant:
+**Look at every image afterwards.** This whole step exists because looking
+found two things that measuring had missed: the glance was clipping the digit
+off every caption, and the Store description claimed the internal sensor shows
+`--` for min and max when in fact the full view omits those lines entirely.
 
-- `screencapture` needs **Screen Recording**, or it returns "could not create
-  image from display" and writes nothing.
-- Driving the simulator's menu with `osascript` needs **Accessibility**, and
-  without it osascript *hangs on its own consent prompt* rather than failing,
-  which is worse.
+### What the simulator does that will waste your time
 
-**The recommended route needs no permission at all:** the simulator's own
-`File > Save Screenshot`, which writes just the device screen with no window
-chrome - exactly what Garmin wants. Three clicks per shot.
+- **System Events clicks do not reach the device buttons.** `click at {x, y}`
+  reports success and nothing happens. Real Quartz `CGEvent` mouse events do
+  work. This cost five failed attempts before a recorded real click settled it.
+- **The middle-left (UP) button is at screen (69, 514)** with the window at its
+  default position and size, which `tools/sim-shots.py` records as `BUTTON_UP`.
+  If the window moves, re-measure: the target is small and near misses do
+  nothing at all.
+- **The glance cycles three positions** - top, bottom and centred - one per
+  press. **Only the centred one is usable:** in the other two the simulator
+  clips the band's right-hand end, so the last column looks cut off when it is
+  not. Two presses from a fresh launch.
+- **"Glance Launch Mode" is a submenu**, not a checkbox: "Launch in Normal
+  Mode" / "Launch in Glance Mode". Clicking the parent only opens it, which
+  makes toggling look random.
+- **App settings persist between loads.** A build with different property
+  defaults keeps the stored values until `File > Reset All App Data` is used
+  *while that build is loaded*. Reset first and it re-reads the old ones.
+- **The Save Screen Capture dialog wedges** after other menu interactions and
+  then silently writes nothing. Restarting the simulator is the only reliable
+  cure. Capturing the window region sidesteps the dialog completely.
+- **A blue triangle on the watch face means the app is not running** - the boot
+  screen. Reload it.
 
-Connect IQ starts widget apps in **glance mode**, so the first thing on screen
-is the glance view. Press Enter/Start for the full view; page between slots
-with up/down.
+The three shots:
 
-Worth capturing into `docs/screenshots/`:
-
-1. `1-glance.png` - the glance, which changed most in 1.0.0
-2. `2-full.png` - a tempe slot with current, min, max and the battery icon
-3. `3-internal.png` - a slot on ID `-1`, showing `--` for min/max, so the
-   description's caveat has a picture behind it
-
-The glance shot doubles as the visual check that has never been done: its
-geometry is verified numerically on four screen sizes, but nobody has looked
-at it.
+1. `1-glance.png` - the glance, centred
+2. `2-full.png` - a tempe slot: label, current, min, max, battery, page dots
+3. `3-internal.png` - a slot on ID `-1`, which shows a label and one reading
+   and no Min/Max lines at all. `tools/sim-shots.py` gets this from a throwaway
+   build with slot 0 defaulted to `-1`, because the device buttons cannot page
+   the main view reliably.
 
 ## Step 4 - the portal
 

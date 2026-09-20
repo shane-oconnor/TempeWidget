@@ -21,7 +21,7 @@ The project follows an MVC pattern across 6 source files in `source/`:
 | `TempeWidgetApp.mc` | App lifecycle shell — creates State and View, nothing else |
 | `TempeWidgetState.mc` | **Model** — holds global state, initializes sensors, runs the 5s timer, manages `TempItem` objects |
 | `TempeWidgetView.mc` | **Main view** — full-screen rendering of current/min/max temp + battery indicator |
-| `TempeWidgetGlanceView.mc` | **Glance view** — compact 3-column layout for the widget glance panel |
+| `TempeWidgetGlanceView.mc` | **Glance view** — three columns showing slot 0's current reading, 24hr min and 24hr max |
 | `TempeWidgetDelegate.mc` | **Controller** — swipe/button input, page navigation |
 | `TempeWidgetSensor.mc` | ANT+ channel management — fully isolated from UI; communicates back via `updateTempeTemp()` |
 | `TempeWidgetCommon.mc` | Shared constants (colors, fonts), no logic |

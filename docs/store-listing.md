@@ -40,7 +40,8 @@ This widget allows you to quickly display the current temperature, plus the
 24hr min and max, from up to three sources at the same time - Garmin tempe
 sensors, your watch's built in temperature sensor, or a tempe paired over
 Bluetooth. Swipe up and down to move between them, or use the glance view to
-see them side by side without opening the widget.
+see the first sensor's temperature alongside its 24hr min and max without
+opening the widget.
 
 Each slot is configured separately, with its own name, ID and calibration
 offset.
@@ -57,10 +58,12 @@ and see what ID is given. My Tempe has a 6 digit number. Use -1 for your
 watch's internal temperature sensor, or -2 for a tempe paired over Bluetooth.
 
 Please note the 24hr min and max are reported by the tempe sensor itself, so
-they are only available on tempe slots. The internal watch sensor gives the
-current temperature only and will show "--" for min and max. Some watches don't
-give access to the internal sensor or to a paired tempe at all - where the watch
-doesn't provide it you will see "--". Sorry, I can't override this.
+they are only available on tempe slots. A slot using the watch's internal sensor
+or a tempe paired over Bluetooth shows the current temperature on its own - the
+Min and Max lines are simply not shown for it, and the glance shows "--" in
+their place. Some watches don't give access to the internal sensor or to a
+paired tempe at all; where the watch doesn't provide a reading you will see
+"--". Sorry, I can't override this.
 
 Name - the label shown above the reading, up to 12 characters. Handy if you have
 one tempe outside and one in the shed.
@@ -111,20 +114,25 @@ the Connect IQ simulator.
 - Documents **-1 and -2** for the ID field. The settings menu explains these but
   the listing never did.
 - Documents the **Name** and **White Background** settings, both missing before.
-- Adds the **min/max caveat**. Verified in the code: for a tempe slot the min and
-  max come from the sensor's own page-1 broadcast, but for internal and paired
-  slots they are written as null, so those legitimately show `--`. This is the
-  single most likely source of "it's broken" reviews.
+- Adds the **min/max caveat**, which is the single most likely source of
+  "it's broken" reviews. Corrected 2026-09-20 after photographing it: the
+  earlier wording said the internal sensor "will show `--` for min and max",
+  and it does not. The full view omits the Min and Max lines altogether for a
+  slot that has no min/max - `docs/screenshots/3-internal.png` shows exactly
+  that, just a label and one reading. `--` is what the *glance* shows. Worth
+  remembering that reading the code said "null", and null renders two
+  different ways in the two views.
 - Fixes **"emitter" to "ekutter"**, which is the actual developer name on the
   TempX listing. Check you're happy with this — it's your credit line.
 - Adds the GitHub link in the body. The listing already has a Source Code link
   pointing there, but it's easy to miss.
 - **Corrects a claim that was not true when it was drafted.** The old text
-  here said the glance view showed "all three together". It did not — the
-  glance was pinned to slot 0 and showed that one slot's current, min and max
-  (issue #4). PR #13 made it actually show one column per configured slot, so
-  the claim is now accurate. Worth knowing that it was aspirational, in case a
-  similar line gets written again.
+  here said the glance view showed "all three together". It never has. The
+  glance shows the first sensor's current reading with its 24hr min and max,
+  which on a strip only tall enough for one row of numbers says more than three
+  current readings would - a temperature on its own tells you much less than a
+  temperature next to where it has been. The line now describes that. Worth
+  knowing the original was aspirational, in case a similar one gets written.
 - Documents **Number of Tempe**, which was in the settings menu from the start
   but was read by nothing until PR #12 (issue #2).
 - Documents that settings now apply live, and that stale readings dim.
@@ -144,8 +152,9 @@ stays as it is.
   1, 2 or 3 and the rest are hidden and no longer searched for
 - Settings now apply while the widget is open. Changing a name, offset, ID or
   the number of slots no longer needs the widget closed and reopened
-- The glance view now shows every slot you have configured, each with its own
-  name. It previously only ever showed the first one, whatever you had set up
+- The glance view now labels what it is showing - the first sensor's
+  temperature with its 24hr min and max beside it - instead of an unlabelled
+  row of figures
 - The glance view now scales to the watch screen and follows the White
   Background setting, instead of being fixed to one size and always dark
 - A reading more than halfway to its timeout is now drawn dimmed, so a sensor
@@ -245,8 +254,7 @@ Worth capturing at 466x466 for the fēnix 9 Pro, since the layout rewrite is the
 headline change and the current previews are from the old fixed 260px layout:
 
 1. Full view of a tempe slot showing current, min, max and the battery icon
-2. The glance view — now the more interesting shot, since it shows all three
-   slots side by side rather than one
+2. The glance view — the first sensor's reading with its min and max
 3. A slot using the internal sensor, showing `--` for min/max, so the caveat in
    the description has a picture to go with it
 

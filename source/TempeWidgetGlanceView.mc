@@ -44,35 +44,25 @@ class TempeWidgetGlanceView extends WatchUi.GlanceView {
         var w = dc.getWidth();
         var h = dc.getHeight();
 
-        //One column per configured slot, captioned with that slot's own label.
-        //A single slot has the strip to itself, so it spends the space on the
-        //min and max instead -- which is what this view used to show for slot 0
-        //whatever the user had actually configured.
-        var n = (state.cTempe < 2) ? 3 : state.cTempe;
+        //The first slot's current reading, with its 24 hour low and high
+        //beside it. The strip is only tall enough for one row of numbers, so it
+        //spends the width on one sensor's full picture rather than on the
+        //current reading of three - a temperature on its own says much less
+        //than a temperature next to where it has been.
+        //
+        //Slots 2 and 3 are not shown here. They are a swipe away in the full
+        //view, which is where the other sensors live.
+        var n = 3;
         var rgLbl = new [n]; //captions, one per column
         var rgVal = new [n]; //formatted readings, one per column
         var rgDim = new [n]; //true where that reading is on its way out
 
-        if (state.cTempe < 2)
-        {
-            var item = rgTemp[0];
-            var fDim = item.fExpiring();
+        var item = rgTemp[0];
+        var fDim = item.fExpiring();
 
-            rgLbl[0] = item.lbl;  rgVal[0] = strTempGlance(item.tempAdj()); rgDim[0] = fDim;
-            rgLbl[1] = "Min";     rgVal[1] = strTempGlance(item.minAdj());  rgDim[1] = fDim;
-            rgLbl[2] = "Max";     rgVal[2] = strTempGlance(item.maxAdj());  rgDim[2] = fDim;
-        }
-        else
-        {
-            for (var j = 0; j < n; ++j)
-            {
-                var item = rgTemp[j];
-
-                rgLbl[j] = item.lbl;
-                rgVal[j] = strTempGlance(item.tempAdj());
-                rgDim[j] = item.fExpiring();
-            }
-        }
+        rgLbl[0] = item.lbl;  rgVal[0] = strTempGlance(item.tempAdj()); rgDim[0] = fDim;
+        rgLbl[1] = "Min";     rgVal[1] = strTempGlance(item.minAdj());  rgDim[1] = fDim;
+        rgLbl[2] = "Max";     rgVal[2] = strTempGlance(item.maxAdj());  rgDim[2] = fDim;
 
 
         //--- fonts, sized once so every column matches -----------------------
