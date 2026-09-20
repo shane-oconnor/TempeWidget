@@ -5,7 +5,7 @@ import Toybox.WatchUi;
 
 class TempeWidgetApp extends Application.AppBase {
 
-    var mainView = null;
+    var mainView as TempeWidgetView? = null;
 
     function initialize() {
         AppBase.initialize();
@@ -17,6 +17,16 @@ class TempeWidgetApp extends Application.AppBase {
 
     // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
+    }
+
+    // Settings pushed from the phone arrive here while the widget is running.
+    // Re-reading them is what makes a label, offset, device ID or the slot
+    // count take effect without a relaunch; State.updateSettings() closes and
+    // reopens the ANT channels, so a changed device ID is picked up too.
+    function onSettingsChanged() as Void {
+        if (mainView != null) {
+            mainView.state.updateSettings();
+        }
     }
 
     // Return the initial view of your application here

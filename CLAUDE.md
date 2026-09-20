@@ -37,7 +37,7 @@ The project follows an MVC pattern across 6 source files in `source/`:
 ## Key Architecture Decisions
 
 ### TempItem slots
-There are always exactly 3 temperature slots (`cTempItem = 3` in Common.mc). Each is a `TempItem` instance holding: device ID, label, offset, current temp, min/max, battery status, and last-seen timestamp. The number of visible slots can be reduced via the `TempeCount` setting.
+There are always exactly 3 temperature slots (`cTempItem = 3` in Common.mc). Each is a `TempItem` instance holding: device ID, label, offset, current temp, min/max, battery status, and last-seen timestamp. The number of visible slots can be reduced via the `TempeCount` setting, which `State.updateSettings()` clamps to 1–3 and exposes as `State.cTempe`. Slots at or above `cTempe` are not polled, get no ANT channel, and are skipped by the view and by page navigation — but `checkTimeout()` still runs over all 3, so a hidden slot's cached reading still expires.
 
 ### Device ID scheme
 | ID | Meaning |
@@ -49,6 +49,9 @@ There are always exactly 3 temperature slots (`cTempItem = 3` in Common.mc). Eac
 
 ### Two-pass sensor initialization
 When creating `TempeWidgetSensor` objects, specific device IDs (`>0`) are initialized first. Wildcard (`0`) IDs are initialized second. This prevents a wildcard sensor from claiming a device that should be paired to a specific slot.
+
+### Live settings
+`TempeWidgetApp.onSettingsChanged()` calls `State.updateSettings()`, so a setting changed in the Connect app takes effect without relaunching the widget. `updateSettings()` re-reads every property, then releases **all** ANT channels and reopens only the active slots — that is what makes a changed device ID take hold. Any new setting read inside `updateSettings()` is live for free; one read anywhere else is not.
 
 ### Data persistence
 `Application.Storage` caches each slot's last temperature, min/max, battery status, and timestamp. Data survives the widget being backgrounded between timer ticks.
@@ -101,7 +104,7 @@ Settings are read in `TempeWidgetState.mc` using `Properties.getValue("KeyName")
 1. Add a `<iq:property>` entry with a default value to `TempWidgetApResources.xml`
 2. Add a matching `<setting>` entry to the settings UI section of `TempWidgetApResources.xml`
 3. Add a string label to `resources/strings/strings.xml`
-4. Read the property in `TempeWidgetState.mc` `initialize()` using `Properties.getValue()`
+4. Read the property in `TempeWidgetState.mc` `updateSettings()` using `getProp()` — not `initialize()`, or the setting will not apply until relaunch
 5. Store it as an instance variable on `State` and expose it to the view
 
 ### Adding a new display field to TempItem

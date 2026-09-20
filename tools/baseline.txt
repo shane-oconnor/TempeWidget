@@ -4,5 +4,3 @@
 # An entry that stops matching is itself an error -- delete it when the
 # underlying issue is fixed.
 
-# https://github.com/shane-oconnor/TempeWidget/issues/2
-property 'TempeCount' is declared

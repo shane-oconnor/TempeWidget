@@ -55,10 +55,16 @@ class TempeWidgetDelegate extends WatchUi.BehaviorDelegate {
         //WatchUi.pushView(new Rez.Menus.MainMenu(), new TempeWidgetMenuDelegate(), WatchUi.SLIDE_UP);
         return true;
     }
+    //Paging wraps within the slots TempeCount makes visible, not all cTempItem.
+    function cVisible()
+    {
+        return(mainView.state.cTempe);
+    }
+
     function nextScreen() 
     {
 
-        if(mainView.screenNum < (cTempItem - 1)){
+        if(mainView.screenNum < (cVisible() - 1)){
             mainView.screenNum++;
         }else{
             mainView.screenNum = 0;
@@ -74,7 +80,7 @@ class TempeWidgetDelegate extends WatchUi.BehaviorDelegate {
     {
         //System.println("Pre if screenNum : " + mainView.screenNum);
         if(mainView.screenNum <= 0){
-            mainView.screenNum = (cTempItem-1);
+            mainView.screenNum = (cVisible()-1);
             //System.println("post - 1screenNum : " + mainView.screenNum);
         }else{
             mainView.screenNum--;

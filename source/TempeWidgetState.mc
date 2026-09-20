@@ -18,6 +18,7 @@ class State
     var fDbg=true;
     var fBtry=true;
     var fWhiteBG=true;
+    var cTempe=cTempItem; //visible/polled slots, 1..cTempItem, from TempeCount
     var timer = new Timer.Timer();
 
     //-------------------------------------------
@@ -77,12 +78,12 @@ class State
                 {
                     var tempInt = sample.data;
                     //System.println("tempInt : " + tempInt);
-                    for (var i = 0; i < cTempItem; ++i) {rgTemp[i].updateTemp(tempInt,-1);}          
+                    for (var i = 0; i < cTempe; ++i) {rgTemp[i].updateTemp(tempInt,-1);}          
                 }
             }
         }
         
-        for (var i = 0; i < cTempItem; ++i) {rgTemp[i].updateTempeTemp();}          
+        for (var i = 0; i < cTempe; ++i) {rgTemp[i].updateTempeTemp();}          
     
         WatchUi.requestUpdate();
     }
@@ -102,7 +103,7 @@ class State
         {
             if ((sinfo has :temperature) && (sinfo.temperature != null)) 
             {
-                for (var i = 0; i < cTempItem; ++i) {rgTemp[i].updateTemp(sinfo.temperature,-2);}          
+                for (var i = 0; i < cTempe; ++i) {rgTemp[i].updateTemp(sinfo.temperature,-2);}          
                 //System.println("paired temp: " + sinfo.temperature); //this hsould never be called
             }
         }
@@ -114,15 +115,25 @@ class State
         fDbg = getProp("Dbg",false);
         fBtry = getProp("Btry",true);
         fWhiteBG = getProp("WhiteBG",false); //white background
+
+        //The settings menu already constrains this to 1-3, but a property can
+        //also be pushed from the Connect API, so clamp rather than trust it.
+        cTempe = getProp("TempeCount",cTempItem);
+        if (cTempe < 1) {cTempe = 1;}
+        if (cTempe > cTempItem) {cTempe = cTempItem;}
+
         //fDbg=true;
         //System.println("timeout: " + timeout);
-        rgTemp[0].updateSettings(0,"Tempe1",0.0);
-        rgTemp[1].updateSettings(0,"Tempe2",0.0);
-        rgTemp[2].updateSettings(-1,"Internal",0.0);
+        rgTemp[0].updateSettings(0,"Tempe1",0.0,fDbg);
+        rgTemp[1].updateSettings(0,"Tempe2",0.0,fDbg);
+        rgTemp[2].updateSettings(-1,"Internal",0.0,fDbg);
         
+        //Release every slot, not just the active ones: a slot that has just
+        //been switched off, or repointed at a different device ID, has to give
+        //up its ANT channel before the new set is opened.
         for (var i = 0; i < cTempItem; ++i) {rgTemp[i].releaseTempe();}   //delete any Tempe objects   
-        for (var i = 0; i < cTempItem; ++i) {rgTemp[i].initTempe(false);} //init all specified ID's    
-        for (var i = 0; i < cTempItem; ++i) {rgTemp[i].initTempe(true);}  //init all Zero ID's
+        for (var i = 0; i < cTempe; ++i) {rgTemp[i].initTempe(false);} //init all specified ID's    
+        for (var i = 0; i < cTempe; ++i) {rgTemp[i].initTempe(true);}  //init all Zero ID's
         
 
         WatchUi.requestUpdate();
@@ -177,12 +188,12 @@ class TempItem
     }
 
     //---------------------------------
-    function updateSettings(defID, defLbl, defOff)
+    function updateSettings(defID, defLbl, defOff, fDbg)
     {
         id = getProp("T"+i+"ID",defID);
         lbl = getProp("T"+i+"Label",defLbl);
         tos = getProp("T"+i+"Offset",defOff);
-        System.println("Update Settings - : " + tos.toString());
+        if (fDbg) {System.println("Update Settings - : " + tos.toString());}
     }
 
     //---------------------------------
@@ -224,7 +235,17 @@ class TempItem
     {
         if (tempe != null)
         {
-            tempe.closeSensor();
+            //This now runs on every settings change, against a channel that is
+            //very likely open and mid-transfer, not just at shutdown. initTempe
+            //already guards its side; an uncaught throw here would take the
+            //widget down while the user is only editing a label.
+            try
+            {
+                tempe.closeSensor();
+            } catch (ex)
+            {
+                //nothing useful to do: we are dropping the object regardless
+            }
             tempe=null;
         }
     }
