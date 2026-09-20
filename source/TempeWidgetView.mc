@@ -56,13 +56,16 @@ class TempeWidgetView extends WatchUi.View {
 
         //--- the rows we are going to stack -------------------------------
         var strLbl = item.lbl;
-        var strDbg = state.fDbg ? item.getID().toString() : null;
+        //Null is a wildcard slot that has not found a sensor yet; "ex" is what
+        //this has always shown for that, so keep it.
+        var idNow = item.getID();
+        var strDbg = state.fDbg ? ((idNow == null) ? "ex" : idNow.toString()) : null;
         var strT   = "Temp : " + strTemp(item.tempAdj());
         var strMin = (item.tempMin != null) ? "Min : " + strTemp(item.minAdj()) : null;
         var strMax = (item.tempMax != null) ? "Max : " + strTemp(item.maxAdj()) : null;
 
         var batteryStatus = strBatt(item.batStatus);
-        var fShowBatt = state.fBtry && (item.getID() != -1) && (batteryStatus != 0);
+        var fShowBatt = state.fBtry && (idNow != -1) && (batteryStatus != 0);
 
         //Past 50% of the timeout the reading is on its way out. Dim the values
         //and the battery -- they are the stale part -- but leave the label at

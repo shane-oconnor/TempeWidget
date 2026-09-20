@@ -79,12 +79,15 @@ Temperatures are stored internally in **0.01°C units** (integer arithmetic). AN
 
 ### Constants (TempeWidgetCommon.mc)
 - Colors: `ClrTrans`, `ClrWhite`, `ClrBlack`, `ClrDkGray`, `ClrLtGray`, `ClrYellow`
-- Font indices: `F0`–`F4` (normal), `FN0`–`FN3` (number fonts), `FX1`/`FX2` (extra)
 
-Always use these named constants rather than raw hex values for colors and raw integers for font indices.
+Always use these named constants rather than raw hex values for colors.
+
+There is no font-index constant. Both views pick a font at render time with `fitFont()` (also in Common.mc), which walks a ladder of `Graphics.FONT_*` values largest-first and returns the biggest that fits the available width — and, where a height is given, the line height too. `fitStr()` clips a string that still overflows at the smallest font in the ladder. Use these rather than naming a font directly, so layouts keep working across the full device matrix.
 
 ### Debug logging
-All debug output uses `System.println()` gated by the `fDbg` flag (set via the `Dbg` app setting). Never log unconditionally; always wrap in `if (fDbg)`.
+All debug output uses `System.println()` gated by the `fDbg` flag (set via the `Dbg` app setting). Never log unconditionally; always wrap in `if (fDbg)`. `State`, `TempItem` and `TempeWidgetSensor` each hold their own `fDbg` copy, threaded down from `State.updateSettings()`, so any of them can gate its own output.
+
+The one exception is a `println` inside a `catch` block: reporting a failure that was actually caught is not debug logging, and hiding it behind a flag the user has switched off is how a real fault goes unnoticed. `tools/validate.py` enforces both halves of this rule.
 
 ### Settings
 Settings are read in `TempeWidgetState.mc` using `Properties.getValue("KeyName")`. Defaults are defined in `TempWidgetApResources.xml`.

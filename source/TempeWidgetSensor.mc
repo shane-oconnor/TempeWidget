@@ -18,15 +18,13 @@ class TempeWidgetSensor
     var antid=0;        //the actual device found
     var idSearch = 0;
     var chanAssign;
-         
-    //---------------------------------
-    //used for dealing with Ant+ channel not always opening properly
-    var durMsgTimeout = 15000; 
+    var fDbg=false;
 
     //---------------------------------
-    function initialize(id)
+    function initialize(id, fDbgIn)
     {
         idSearch = id;
+        fDbg = fDbgIn;
         if (id == -1) {id = 0;}
         // Get the channel
         chanAssign = new Ant.ChannelAssignment(Ant.CHANNEL_TYPE_RX_NOT_TX,Ant.NETWORK_PLUS);
@@ -110,26 +108,10 @@ class TempeWidgetSensor
         }
     }
 
-    //---------------------------------
-    // just minimal reset;
-    function resetSensor(id)
-    {
-        idSearch = id;
-        if (id == -1) {id = 0;}
-
-        antChannel.close(); //or release?
-        deviceCfg.deviceNumber = id;
-        antChannel.setDeviceConfig(deviceCfg);
-        open();
-    }
-
-
-    function isValid() {return(searching==false);}
-
 
     function open()
     {
-        System.println(strTimeOfDay(true) + " open channel: "+deviceCfg.deviceNumber);
+        if (fDbg) {System.println(strTimeOfDay(true) + " open channel: "+deviceCfg.deviceNumber);}
         antChannel.open();
         searching = true;
     }
@@ -164,7 +146,7 @@ class TempeWidgetSensor
                 // Update our device configuration primarily to see the device number of the sensor we paired to
                 deviceCfg = antChannel.getDeviceConfig();
                 antid = msg.deviceNumber;
-                System.println("Tempe found - antid: " + antid);
+                if (fDbg) {System.println("Tempe found - antid: " + antid);}
                 requestBatteryStatusPage();
             }
             parsePayload();

@@ -32,23 +32,9 @@ class State
         for (var i = 0; i < cTempItem; ++i) {rgTemp[i] = new TempItem(i);}
         updateSettings(); //this actually initializes the tempe's
 
-        //System.println(dbgStr());
         checkTimeout(false);
-        //System.println(dbgStr());
         
         timer.start(method(:onTimerTic),5000,true);
-    }
-    //---------------------------------
-    function getTemp(i) {return(rgTemp[i].temp);}
-    function getLbl(i) {return(rgTemp[i].lbl);}
-    
-    //---------------------------------
-    function dbgStr()
-    {
-        //return( Lang.format("$1$, $2$, $3$", [rgTemp[0].toStr(),rgTemp[1].toStr(),rgTemp[2].toStr()]));
-        //return( Lang.format("debStr $1$, $2$, $3$", [rgTemp[0].toStr(),rgTemp[0].toStr(),rgTemp[0].toStr()]));
-        return( Lang.format("debStr $1$", [rgTemp[0].toStr()]));
-
     }
     //---------------------------------
     function checkTimeout(fClear)
@@ -59,12 +45,10 @@ class State
             rgTemp[i].checkTimeout(fClear,tmOut);
         }
     }
-    //-----------------------------------------------
-    function clearCache(){checkTimeout(true);}
     //---------------------------------
     function onTimerTic() //every second
     {
-        System.println(strTimeOfDay(true) + "onTimerTic Sensor");
+        if (fDbg) {System.println(strTimeOfDay(true) + "onTimerTic Sensor");}
         
         checkTimeout(false);
         
@@ -152,7 +136,7 @@ class TempItem
     var id; //-1=internal, -2=paired, 0=any unpaired
     var lbl;
     var tos; // tempoffset when tempe not accurate
-    var disable=false; //disable the Tempe screen property
+    var fDbg=false;
     var tmLast;  //time the last temperature was recorded, epoch seconds
     var temp;    //most recent temperature - null if none
     var tempe; //the tempe object, null if internal or paired
@@ -188,8 +172,9 @@ class TempItem
     }
 
     //---------------------------------
-    function updateSettings(defID, defLbl, defOff, fDbg)
+    function updateSettings(defID, defLbl, defOff, fDbgIn)
     {
+        fDbg = fDbgIn; //kept so the rest of the class can gate its own logging
         id = getProp("T"+i+"ID",defID);
         lbl = getProp("T"+i+"Label",defLbl);
         tos = getProp("T"+i+"Offset",defOff);
@@ -225,10 +210,14 @@ class TempItem
         return(Lang.format("$1$: $2$,$3$,$4$,$5$",[i,id,lbl,numStr(temp), durStr(tmLast)]));
     }
     //---------------------------------
+    //The ANT device number this slot is actually using: the configured id, or
+    //for a wildcard slot the one it discovered. Null means a wildcard slot that
+    //has not found a sensor yet -- the caller decides how to show that, rather
+    //than this returning a String in one state and a Number in the others.
     function getID()
     {
-        if ((id == 0) && (tempe == null)) {return("ex");}
-        return ((id == 0) ? tempe.antid : id);
+        if (id != 0) {return(id);}
+        return((tempe == null) ? null : tempe.antid);
     }
     //---------------------------------
     function releaseTempe()
@@ -260,7 +249,7 @@ class TempItem
                 try
                 {
                     //tempe = null;
-                    tempe=new TempeWidgetSensor(id);  
+                    tempe=new TempeWidgetSensor(id,fDbg);  
                 } catch (ex)
                 {
                     System.println("Exception in TempeWidgetSensor(" + id + "): " + ex.getErrorMessage());
@@ -331,7 +320,7 @@ class TempItem
                 Application.Storage.setValue("MaxTemp"+i,null);
                 Application.Storage.setValue("StatusBattery"+i, null);
                 //System.println("UpdateTemp: tempOffset " + tempOffset);
-                System.println("UpdateTemp: temp " + temp);
+                if (fDbg) {System.println("UpdateTemp: temp " + temp);}
             }
             //System.println("UpdateTemp: " + toStr());
         }

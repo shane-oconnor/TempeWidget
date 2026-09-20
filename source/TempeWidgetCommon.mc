@@ -13,8 +13,6 @@ const ClrDkGray = 0x555555;//Graphics.COLOR_DK_GRAY;
 const ClrYellow = 0xFFAA00; //Graphics.COLOR_YELLOW;
 
 
-enum {F0, F1, F2, F3, F4,FN0, FN1, FN2, FN3, FX1, FX2}
-
 //---------------------------------
 //outside of a class
 (:glance)
