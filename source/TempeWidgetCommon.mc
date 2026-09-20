@@ -2,6 +2,7 @@ import Toybox.Application;
 import Toybox.System;
 import Toybox.Lang;
 import Toybox.Time;
+import Toybox.Graphics;
 
 
 const ClrTrans = -1;//Graphics.COLOR_TRANSPARENT;
@@ -22,6 +23,52 @@ function getProp(key,valDef)
     var val = Application.Properties.getValue(key);
     //System.println(Lang.format("loadVal($1$,$2$)=$3$",[key,valDef,val]));
     return((val == null) ? valDef : val); 
+}
+
+//---------------------------------
+//Largest font from ladder (ordered largest first) that renders every non-null
+//string within maxW, and whose line height is within maxH. Pass maxH = 0 when
+//only the width matters. Falls back to the smallest font in the ladder.
+//Shared: both views size themselves off the device's own font metrics rather
+//than any fixed pixel value.
+(:glance)
+function fitFont(dc as Graphics.Dc, strs as Lang.Array<Lang.String?>,
+                 maxW as Lang.Number, maxH as Lang.Number,
+                 ladder as Lang.Array<Graphics.FontDefinition>)
+                 as Graphics.FontDefinition
+{
+    for (var j = 0; j < ladder.size(); ++j)
+    {
+        if ((maxH > 0) && (dc.getFontHeight(ladder[j]) > maxH)) {continue;}
+
+        var fFits = true;
+        for (var k = 0; k < strs.size(); ++k)
+        {
+            if ((strs[k] != null) && (dc.getTextWidthInPixels(strs[k], ladder[j]) > maxW))
+            {
+                fFits = false;
+            }
+        }
+        if (fFits) {return(ladder[j]);}
+    }
+    return(ladder[ladder.size()-1]);
+}
+
+//---------------------------------
+//Trim a string until it renders within maxW at the given font. fitFont falls
+//back to the smallest font in its ladder, so on a narrow column a long label
+//can still overflow -- clipping the caption beats letting neighbouring columns
+//run into each other.
+(:glance)
+function fitStr(dc as Graphics.Dc, str as Lang.String,
+                font as Graphics.FontDefinition, maxW as Lang.Number)
+{
+    var out = str;
+    while ((out.length() > 1) && (dc.getTextWidthInPixels(out, font) > maxW))
+    {
+        out = out.substring(0, out.length() - 1);
+    }
+    return(out);
 }
 
 (:glance)

@@ -34,29 +34,6 @@ class TempeWidgetView extends WatchUi.View {
     function onShow() as Void {
     }
 
-    //---------------------------------
-    //Largest font from ladder (ordered largest first) that renders every
-    //non-null string within maxW. Falls back to the smallest.
-    function fitFont(dc as Graphics.Dc, strs as Lang.Array<Lang.String?>,
-                     maxW as Lang.Number,
-                     ladder as Lang.Array<Graphics.FontDefinition>)
-                     as Graphics.FontDefinition
-    {
-        for (var j = 0; j < ladder.size(); ++j)
-        {
-            var fFits = true;
-            for (var k = 0; k < strs.size(); ++k)
-            {
-                if ((strs[k] != null) && (dc.getTextWidthInPixels(strs[k], ladder[j]) > maxW))
-                {
-                    fFits = false;
-                }
-            }
-            if (fFits) {return(ladder[j]);}
-        }
-        return(ladder[ladder.size()-1]);
-    }
-
     // Update the view
     function onUpdate(dc as Dc) as Void {
         // Call the parent onUpdate function to redraw the layout
@@ -87,6 +64,12 @@ class TempeWidgetView extends WatchUi.View {
         var batteryStatus = strBatt(item.batStatus);
         var fShowBatt = state.fBtry && (item.getID() != -1) && (batteryStatus != 0);
 
+        //Past 50% of the timeout the reading is on its way out. Dim the values
+        //and the battery -- they are the stale part -- but leave the label at
+        //full contrast, since which slot you are looking at has not gone stale.
+        //ClrDkGray reads as dimmed against both a black and a white background.
+        var clrVal = item.fExpiring() ? ClrDkGray : clrFore;
+
         //--- battery geometry, proportional to the screen -----------------
         //15% of width reproduces the original 40px icon on a 260px fenix 7
         var battW = w * 15 / 100;
@@ -98,8 +81,8 @@ class TempeWidgetView extends WatchUi.View {
         var ladder = [Graphics.FONT_LARGE, Graphics.FONT_MEDIUM, Graphics.FONT_SMALL,
                       Graphics.FONT_TINY, Graphics.FONT_XTINY];
 
-        var fVal = fitFont(dc, [strT, strMin, strMax], maxW, ladder);
-        var fLbl = fitFont(dc, [strLbl], maxW, ladder);
+        var fVal = fitFont(dc, [strT, strMin, strMax], maxW, 0, ladder);
+        var fLbl = fitFont(dc, [strLbl], maxW, 0, ladder);
 
         var hLbl = dc.getFontHeight(fLbl);
         var hVal = dc.getFontHeight(fVal);
@@ -130,6 +113,7 @@ class TempeWidgetView extends WatchUi.View {
         }
         y += gap;
 
+        dc.setColor(clrVal, ClrTrans);
         dc.drawText(xCenter, y, fVal, strT, Graphics.TEXT_JUSTIFY_CENTER);
         y += hVal + gap;
 
@@ -147,7 +131,7 @@ class TempeWidgetView extends WatchUi.View {
 
         if (fShowBatt)
         {
-            drawBattery(dc, batteryStatus, clrFore, Graphics.COLOR_DK_RED, clrBack,
+            drawBattery(dc, batteryStatus, clrVal, Graphics.COLOR_DK_RED, clrBack,
                         xCenter, y, battW, battH);
         }
 

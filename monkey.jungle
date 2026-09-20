@@ -1,7 +1,7 @@
 project.manifest = manifest.xml
 project.typecheck = 1
 
-# Per-device launcher icons. 29 of the 43 products want 40x40 and use the
+# Per-device launcher icons. 33 of the 56 products want 40x40 and use the
 # default resources/ copy; these are the sizes that differ, rendered from
 # the same geometry rather than upscaled. See tools/make-icons.py.
 instinctcrossover.resourcePath = $(instinctcrossover.resourcePath);resources-icon26
@@ -14,7 +14,16 @@ epix2pro51mm.resourcePath = $(epix2pro51mm.resourcePath);resources-icon60
 fr265.resourcePath = $(fr265.resourcePath);resources-icon60
 marq2.resourcePath = $(marq2.resourcePath);resources-icon60
 marq2aviator.resourcePath = $(marq2aviator.resourcePath);resources-icon60
+fenix843mm.resourcePath = $(fenix843mm.resourcePath);resources-icon60
+fenix943mm.resourcePath = $(fenix943mm.resourcePath);resources-icon60
+fenix9pro43mm.resourcePath = $(fenix9pro43mm.resourcePath);resources-icon60
 descentg1.resourcePath = $(descentg1.resourcePath);resources-icon62
 instinct2.resourcePath = $(instinct2.resourcePath);resources-icon62
 fenix9pro51mm.resourcePath = $(fenix9pro51mm.resourcePath);resources-icon65
 fr965.resourcePath = $(fr965.resourcePath);resources-icon65
+fenix847mm.resourcePath = $(fenix847mm.resourcePath);resources-icon65
+fenix8pro47mm.resourcePath = $(fenix8pro47mm.resourcePath);resources-icon65
+fenix947mm.resourcePath = $(fenix947mm.resourcePath);resources-icon65
+fenix9pro47mm.resourcePath = $(fenix9pro47mm.resourcePath);resources-icon65
+fr970.resourcePath = $(fr970.resourcePath);resources-icon65
+venu2.resourcePath = $(venu2.resourcePath);resources-icon70

@@ -84,9 +84,12 @@ SIZES = {
     35: ["fr55"],
     54: ["instinct2s"],
     60: ["epix2", "epix2pro42mm", "epix2pro47mm", "epix2pro51mm",
-         "fr265", "marq2", "marq2aviator"],
+         "fr265", "marq2", "marq2aviator",
+         "fenix843mm", "fenix943mm", "fenix9pro43mm"],
     62: ["descentg1", "instinct2"],
-    65: ["fenix9pro51mm", "fr965"],
+    65: ["fenix9pro51mm", "fr965",
+         "fenix847mm", "fenix8pro47mm", "fenix947mm", "fenix9pro47mm", "fr970"],
+    70: ["venu2"],
 }
 
 
