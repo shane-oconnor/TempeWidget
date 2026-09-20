@@ -74,25 +74,39 @@ class TempeWidgetGlanceView extends WatchUi.GlanceView {
             }
         }
 
-        //--- fonts, sized once so every column matches -----------------------
-        //85% of the column keeps neighbouring readings from touching.
-        var colW = w / n;
-        var maxW = colW * 85 / 100;
 
-        var fLbl = fitFont(dc, rgLbl, maxW, h / 3,
+        //--- fonts, sized once so every column matches -----------------------
+        //The readings keep a clear gutter at 85% of the column. The captions get
+        //nearly the whole column: they are small, grey, centred, and a gap of a
+        //few pixels between them reads fine.
+        //
+        //That difference is what keeps a caption legible. On a 359x130 glance at
+        //three columns the column is 119px and the smallest font renders
+        //"Tempe1" at 112px and "Internal" at 103px. Both fit the column and
+        //neither fits 85% of it, so both were being clipped -- to "Tempe" and
+        //"Interna". Slot 2 clipped to "Tempe" as well, which left two of the
+        //three columns labelled identically and no way to tell the readings
+        //apart. FONT_GLANCE does not help; it is wider than FONT_XTINY, not
+        //narrower.
+        var colW = w / n;
+        var maxWVal = colW * 85 / 100;
+        var maxWLbl = colW * 96 / 100;
+
+        var fLbl = fitFont(dc, rgLbl, maxWLbl, h / 3,
                            [Graphics.FONT_TINY, Graphics.FONT_XTINY]);
         var hLbl = dc.getFontHeight(fLbl);
 
-        var fVal = fitFont(dc, rgVal, maxW, h - hLbl,
+        var fVal = fitFont(dc, rgVal, maxWVal, h - hLbl,
                            [Graphics.FONT_MEDIUM, Graphics.FONT_SMALL,
                             Graphics.FONT_TINY, Graphics.FONT_XTINY]);
         var hVal = dc.getFontHeight(fVal);
 
-        //A label is free text from the settings menu, so the smallest font is
-        //not necessarily small enough. Clip what is left over.
+        //A label is free text from the settings menu and can be up to 12
+        //characters, so the smallest font is still not always small enough.
+        //Clip whatever is left over rather than let columns collide.
         for (var j = 0; j < n; ++j)
         {
-            rgLbl[j] = fitStr(dc, rgLbl[j], fLbl, maxW);
+            rgLbl[j] = fitStr(dc, rgLbl[j], fLbl, maxWLbl);
         }
 
         //--- centre the value/label stack vertically -------------------------
