@@ -8,7 +8,7 @@ import Toybox.Time;
 import Toybox.Timer;
 
 (:glance)const cTempItem = 3; 
-(:glance)var rgTemp = new [cTempItem];
+(:glance)var rgTemp as Lang.Array<TempItem?> = new [cTempItem];
 
 (:glance)
 class State

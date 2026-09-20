@@ -39,22 +39,33 @@ echo "Products: ${#products[@]}"
 echo
 
 failed=()
+total_warns=0
+level_warns=0
 for level in 1 2; do
+    level_warns=0
     echo "== type-check level $level =="
     for p in "${products[@]}"; do
         if [ ! -d "$CIQ/Devices/$p" ]; then
             echo "  SKIP  $p (no device definition installed)"
             continue
         fi
-        if "$MONKEYC" -o "$OUT/$p.prg" -f "$ROOT/monkey.jungle" -y "$KEY" \
+        if "$MONKEYC" -w -o "$OUT/$p.prg" -f "$ROOT/monkey.jungle" -y "$KEY" \
                       -d "$p" -l "$level" >"$OUT/$p.log" 2>&1; then
-            echo "  ok    $p"
+            warns=$(grep -c WARNING "$OUT/$p.log")
+            if [ "$warns" -gt 0 ]; then
+                echo "  ok    $p  ($warns warning(s))"
+                total_warns=$((total_warns + warns))
+                level_warns=$((level_warns + warns))
+            else
+                echo "  ok    $p"
+            fi
         else
             echo "  FAIL  $p"
             sed 's/^/          /' "$OUT/$p.log"
             failed+=("$p@L$level")
         fi
     done
+    echo "  level $level: $level_warns warning(s) across ${#products[@]} products"
     echo
 done
 
@@ -68,6 +79,7 @@ else
     failed+=("export")
 fi
 
+echo
 echo
 if [ "${#failed[@]}" -gt 0 ]; then
     echo "FAILED: ${failed[*]}"

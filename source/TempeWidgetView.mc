@@ -1,4 +1,5 @@
 import Toybox.Graphics;
+import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.System;
 import Toybox.SensorHistory;
@@ -36,7 +37,10 @@ class TempeWidgetView extends WatchUi.View {
     //---------------------------------
     //Largest font from ladder (ordered largest first) that renders every
     //non-null string within maxW. Falls back to the smallest.
-    function fitFont(dc, strs, maxW, ladder)
+    function fitFont(dc as Graphics.Dc, strs as Lang.Array<Lang.String?>,
+                     maxW as Lang.Number,
+                     ladder as Lang.Array<Graphics.FontDefinition>)
+                     as Graphics.FontDefinition
     {
         for (var j = 0; j < ladder.size(); ++j)
         {

@@ -1,6 +1,7 @@
 import Toybox.System;
 import Toybox.Application;
 import Toybox.Ant;
+import Toybox.Lang;
 import Toybox.AntPlus;
 import Toybox.Sensor;
 import Toybox.SensorHistory;
@@ -141,7 +142,7 @@ class TempeWidgetSensor
 
 
     //---------------------------------
-    var payload;
+    var payload as Lang.Array?;
     //System.println("Just created payload var");
 
     function onMessage(msg as Ant.Message) as Void
