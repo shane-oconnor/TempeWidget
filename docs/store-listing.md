@@ -405,11 +405,10 @@ Still to do, in the order that makes sense:
 - [ ] **Check the launcher icon on a device or the simulator.** The per-size
       renders in `resources-icon*/` have never been seen on a watch, and
       `resources-icon70` — the one venu2 needs — is newer than all the others
-- [ ] **Decide whether to keep all 56 products** or trim the untested ones
-      (section 4). The fēnix 8 and 9 families, fr970 and venu2 are in the
-      built `.iq`; uploading it claims support for every one of them, and
-      none has run on real hardware. Trimming means editing `manifest.xml`
-      and rebuilding
+- [x] **Decided: keep all 56 products.** Confirmed 2026-09-20. The fēnix 8
+      and 9 families, fr970 and venu2 stay in the uploaded `.iq` even though
+      none has run on real hardware. A further 40 devices are candidates for
+      a later release — see issue #20, which carries the build evidence
 - [ ] Confirm the version field, description and What's New above
 - [ ] Capture and replace the screenshots. The glance shot doubles as the
       check above, so take it first
