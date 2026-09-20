@@ -1,37 +1,12 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-bin/TempeWidget-settings.json
-bin/TempeWidget.prg
-bin/TempeWidget.prg.debug.xml
-bin/gen/006-B3888-00/source/Rez.mcgen
-bin/gen/resources/cache/i626efd7f.mbc
-bin/gen/resources/cache/ia4dd3a28.mbc
-bin/mir/source/TempeWidgetDelegate.mir
-bin/mir/source/TempeWidgetGlanceView.mir
-bin/mir/source/TempeWidgetSensor.mir
-bin/mir/source/TempeWidgetState.mir
-bin/mir/source/TempeWidgetView.mir
-bin/TempeWidget-settings.json
-bin/TempeWidget.prg
-bin/TempeWidget.prg.debug.xml
-bin/mir/source/TempeWidgetDelegate.mir
-bin/mir/source/TempeWidgetGlanceView.mir
-bin/mir/source/TempeWidgetSensor.mir
-bin/mir/source/TempeWidgetState.mir
-bin/mir/source/TempeWidgetView.mir
-bin/*
-.gitignore
-=======
->>>>>>> Tempe-Offset
-bin/gen/006-B3888-00/source/Rez.mcgen
-bin/gen/resources/cache/i626efd7f.mbc
-bin/gen/resources/cache/ia4dd3a28.mbc
-bin/*
-<<<<<<< HEAD
-=======
->>>>>>> 081da44 (Initial)
->>>>>>> Tempe-Offset
-export/TempeWidget.iq
-.gitignore
-.gitignore
+# Connect IQ build output
+bin/
+export/
+*.prg
+*.prg.debug.xml
+*.iq
+
+# Local editor config — monkeyC.developerKeyPath is machine-specific
+.vscode/
+
+# macOS
+.DS_Store

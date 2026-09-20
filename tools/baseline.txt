@@ -1,0 +1,8 @@
+# Findings that are known, filed on the issue tracker and deliberately not
+# fixed yet. A substring match against the reported message is enough.
+#
+# An entry that stops matching is itself an error -- delete it when the
+# underlying issue is fixed.
+
+# https://github.com/shane-oconnor/TempeWidget/issues/2
+property 'TempeCount' is declared
