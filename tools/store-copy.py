@@ -28,11 +28,16 @@ FIELDS = {
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LISTING = os.path.join(ROOT, "docs", "store-listing.md")
 
-# Garmin does not document these and they have not been read off the portal
-# yet, so treat them as a prompt to look rather than a rule. The real limit is
-# the maxlength on each input; when the portal is next open, check it and
-# replace this. Lengths are always reported so a near-miss is visible.
-LIMITS_UNVERIFIED = {"version": None, "description": None, "whatsnew": None}
+# Read off the portal's own inputs on 2026-09-20, not guessed. Title is
+# maxlength=50; Description and What's New are both "Maximum 4000 Characters".
+#
+# **App Version is maxlength=20**, and it is not on the Edit Details form at
+# all - it is entered during Upload New Version, at the point of publishing.
+# This nearly went wrong: the drafted string was 46 characters and would have
+# been silently truncated. Keep the version field short, in the style of the
+# one it replaced ("0.68 Added EPIX").
+LIMITS = {"version": 20, "description": 4000, "whatsnew": 4000}
+LIMITS_UNVERIFIED = LIMITS  # kept for the existing call sites
 
 
 def extract(text, heading_re):

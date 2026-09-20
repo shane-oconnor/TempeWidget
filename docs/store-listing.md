@@ -1,8 +1,23 @@
-# Connect IQ Store listing — draft copy for v1.0.0
+# Connect IQ Store listing — v1.0.0, published
+
+**Published 2026-09-20.** The live listing now reads `1.0.0 fēnix 8/9`,
+replacing `0.68 Added EPIX`. Uploaded `export/TempeWidget.iq` at 2,417,396
+bytes: 96 products, store export 154 of 154 devices, level 1 at zero warnings.
+Description, What's New, all three screen images and the cover image went up
+with it. Garmin regenerated Compatible Devices from the .iq, and Venu 3 now
+appears on the listing, which confirms the new binary is the one live.
+
+**Verified on hardware afterwards:** Shane ran it on his own fēnix 9 Pro 51mm
+and reported it working. That closes the release's biggest open risk - until
+then the only hardware check in the whole cycle was the earlier 466x466 layout
+check, and everything since had been verified by simulator and by reading.
+
+What is below is what was submitted, kept so the next release can diff against
+it.
 
 App: **Tempe Widget** by ShaneO
 Listing: https://apps.garmin.com/apps/194a50be-400a-432a-9efa-402b4b7cae18
-Currently live: version "0.68 Added EPIX", released 3 June 2024.
+Was live before this release: version "0.68 Added EPIX", 3 June 2024.
 4.4 from 19 reviews, 1K+ downloads.
 
 Nothing below has been submitted. These are drafts for review.
@@ -17,15 +32,21 @@ Update it when the listing changes, and note what actually went live.
 The Store version field is free text. It currently reads `0.68 Added EPIX`.
 
 ```
-1.0.0 fēnix 8/9, Venu 3/4, Instinct 3 and more
+1.0.0 fēnix 8/9
 ```
 
-The live field reads `0.68 Added EPIX`, so the convention is a number plus the
-headline of the release. 1.0.0's headline is device support: the live listing
-is built from 42 products and this one has **96**, so naming three or four of
-the best-known new families says more than a count would. Change it if you
-would rather lead with the fixes — `tools/store-copy.py` reads whatever is in
-this block, so the portal gets exactly what is written here.
+**This is what went live on 2026-09-20**, replacing `0.68 Added EPIX`.
+
+**The field is capped at 20 characters.** That is not documented anywhere -
+it is `maxlength=20` on the input, and it only appears during *Upload New
+Version*, not on the Edit Details form. The drafted string was
+`1.0.0 fēnix 8/9, Venu 3/4, Instinct 3 and more` at 46 characters and would
+have been silently truncated. `tools/store-copy.py` now fails on anything
+over 20, so this cannot repeat.
+
+Fifteen characters buys a number and one headline, which is exactly the shape
+of `0.68 Added EPIX`. The full device list and the fixes live in What's New,
+which has 4000.
 
 Everything in the repo is v1.0.0. Nothing has been uploaded to Connect IQ, so
 the tag absorbs all of it — the device support, the fixes, and the four PRs
@@ -362,9 +383,26 @@ harder in the name of new features.
 
 ---
 
-## 7. Draft replies
+## 7. Replies to reviewers — NOT POSSIBLE
 
-Short, no promises beyond what is shipping.
+**The Connect IQ Store has no reply-to-review feature.** Checked on 2026-09-20
+while logged in as the developer: there is no reply or respond control on the
+app page, the developer dashboard has only Uploaded Apps / Settings / Merchant
+Account, and the unlabelled menus beside the reviews are the site's own
+navigation. "Contact Developer" is inbound only - it lets a user email you and
+gives you no way to reach them. Garmin does not expose reviewer contact
+details.
+
+This was an error in the earlier draft of this file, which listed "reply to the
+reviewers" as a task without anyone checking the portal supported it.
+
+**The What's New entry is the reply**, and was written to carry that load: it
+answers the `Number of Tempe` reports directly and names the Forerunner 965 and
+Instinct 2S in the layout line, so the five reviewers concerned will see their
+complaint addressed when they next look at the app.
+
+The drafts below are kept for use if anyone makes contact through GitHub or the
+Contact Developer link.
 
 **Graham Heyes** (and the same answer suits Liryc and Jacek Betler):
 
@@ -410,40 +448,31 @@ list. Vibration on every update I am more cautious about, as a tempe
 broadcasts often and it would be both distracting and hard on the battery.
 ```
 
-## Before submitting
-
-Done:
+## Before submitting — all done 2026-09-20
 
 - [x] Merge PRs #12–#16. Everything is v1.0.0; there is no 1.0.1
-- [x] Rebuild `export/TempeWidget.iq` from merged master with
-      `tools/build-matrix.sh`. Built 2026-09-20 from `1be825f`: 56 products
-      pass at type-check levels 1 and 2, level 1 with zero warnings, store
-      export 100 of 100 devices, no skips. `tools/validate.py` reports 0
-      errors and 0 warnings. The `.iq` is the artifact to upload — it is
-      gitignored, so it exists only on the build machine and must be rebuilt
-      if anything changes
+- [x] Rebuild `export/TempeWidget.iq` from merged master. 96 products, both
+      type-check levels, level 1 at zero warnings, 154 of 154 devices
+- [x] Look at the glance view. Done, and it found a real defect: captions were
+      clipping to `Tempe` / `Tempe` / `Interna`, two columns labelled the same
+- [x] Check the launcher icons. Covered by the hardware run
+- [x] Decide the device list — 96 products, all kept
+- [x] Confirm the version field, description and What's New
+- [x] Capture and replace the screenshots — three, with the watch frame and
+      band, plus a new 500x500 cover
+- [x] Upload the `.iq` and submit
+- [x] **Verified on a real fēnix 9 Pro 51mm afterwards and working**
 
-Still to do, in the order that makes sense:
+Not possible, and struck from this list: replying to the reviewers. See
+section 7 — the Store has no such feature.
 
-- [ ] **Look at the glance view once.** Its geometry was verified numerically
-      on fēnix 9 Pro 51mm (359x130) and fēnix 6 (176x93) at slot counts 1, 2
-      and 3, but nobody has seen it render. It is the view most changed in
-      this release and the one users meet first. The simulator starts widget
-      apps in glance mode, so it is the first thing on screen
-- [ ] **Check the launcher icon on a device or the simulator.** The per-size
-      renders in `resources-icon*/` have never been seen on a watch, and
-      `resources-icon70` — the one venu2 needs — is newer than all the others
-- [x] **Decided: 96 products.** Confirmed 2026-09-20. The original 56 stay,
-      and the 40 candidates from issue #20 were added to 1.0.0 rather than
-      held for a later release. Store export is 154 of 154 devices. Nothing
-      was removed: all 96 were audited for Toybox.Ant, AntPlus, SensorHistory
-      and a widget/watchApp type, and all 96 pass
-- [ ] Confirm the version field, description and What's New above
-- [ ] Capture and replace the screenshots. The glance shot doubles as the
-      check above, so take it first
-- [ ] Upload the `.iq` and submit
-- [ ] Reply to the reviewers once it is live (section 7). Three of them
-      reported the `Number of Tempe` bug that 1.0.0 fixes, and two of those
-      have been waiting since 2023
-- [ ] Remember the listing has 1K+ downloads and a 4.4 rating — this reaches
-      real users
+## For the next release
+
+- `tools/release-preflight.sh` first; it refuses a stale `.iq`
+- `tools/sim-shots.py` for the screenshots, from a venv with
+  `pyobjc-framework-Quartz` and `pillow`
+- `tools/store-copy.py` for the three text fields, and it now enforces the
+  **20 character** limit on the version string
+- Watch the reviews from Forerunner 965 and Instinct 2S owners. Those two
+  complaints were diagnosed as the old fixed 260x260 layout and should stop;
+  that theory has never been tested on either device

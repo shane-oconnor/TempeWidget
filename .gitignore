@@ -22,3 +22,7 @@ docs/.store-copy/
 
 # simulator run log written by tools/sim-screenshot.sh
 docs/screenshots/.monkeydo.log
+
+# Claude Code working material stays private - the ciq-publish skill lives at
+# ~/.claude/skills/ciq-publish/ instead, which is outside this repo.
+.claude/
