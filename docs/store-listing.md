@@ -1,4 +1,4 @@
-# Connect IQ Store listing — draft copy
+# Connect IQ Store listing — draft copy for v1.0.0
 
 App: **Tempe Widget** by ShaneO
 Listing: https://apps.garmin.com/apps/194a50be-400a-432a-9efa-402b4b7cae18
@@ -16,24 +16,13 @@ Update it when the listing changes, and note what actually went live.
 
 The Store version field is free text. It currently reads `0.68 Added EPIX`.
 
-**Undecided, and it needs deciding before submitting.** The tagged v1.0.0 has
-since been followed by four PRs (#12–#15) that add user-visible behaviour —
-`Number of Tempe` actually working, settings applying without a relaunch, the
-glance showing every slot, stale readings fading. Either:
-
 ```
 1.0.0 Added fēnix 9 Pro
 ```
 
-if those are folded in before anything is submitted — nothing has gone to the
-Store yet, so 1.0.0 can still absorb them; or
-
-```
-1.0.1 Added fēnix 9 Pro
-```
-
-if v1.0.0 is treated as already spent. The What's New entry in section 3 is
-written to cover the whole set either way; only the number changes.
+Everything in the repo is v1.0.0. Nothing has been uploaded to Connect IQ, so
+the tag absorbs all of it — the device support, the fixes, and the four PRs
+that followed (#12–#15). There is no 1.0.1.
 
 ---
 
@@ -164,7 +153,9 @@ stays as it is.
 - Fixed the battery icon ignoring the White Background setting
 - A critical tempe battery level is now flagged, not just a low one
 - Rebuilt the full screen layout so it scales to the watch screen instead of
-  being fixed to one size
+  being fixed to one size. This should fix the widget on screens that are not
+  260x260 - the Forerunner 965 and Instinct 2S in particular, where the old
+  layout was drawn at the wrong size
 - Sharper launcher icon on watches that ask for a larger one, instead of a
   scaled up 40x40
 - Debug logging no longer runs with Debug Mode switched off
@@ -249,30 +240,151 @@ before anything else here.
 
 ---
 
-## 6. One thing from the reviews
+## 6. What the reviews are telling us
 
-Graham Heyes, 24 Dec 2025, 5 stars:
+19 reviews, 4.4 average. Read in full, they say three useful things.
 
-> "Excellent app, especially the offset! Is there a way to hide Tempe1? I only
-> need 1 as well as the internal watch temperature."
+### a. "Number of Tempe" is the most-reported bug in the listing
 
-That was exactly issue #2 — the `Number of Tempe` setting was already in the
-settings menu but nothing read it.
+Three separate people, across two years, reported the same thing:
 
-**It is now built** (PR #12). Setting it to 1 leaves him a single tempe, and
-pointing a second slot at -1 gives him the internal watch sensor alongside it,
-which is precisely what he asked for. Worth replying to him when this goes
-live; a 5-star reviewer who asks for a specific feature and then sees it ship
-is worth the two minutes.
+> **Jacek Betler**, 27 Nov 2023, 0.66 — "The option Numbers of Tempe dasn't
+> work on Fenix 7."
 
-For reference, TempX shipped the same thing in its 0.14: "ability to select
-'none' for a tempe".
+> **Liryc**, 26 Jan 2024, 0.67 — "I set the Tempe number to 1, but still get 3
+> displays (with Tempe2 still displayed). Is that a bug ?"
+
+> **Graham Heyes**, 24 Dec 2025, 0.68, 5 stars — "Excellent app, especially the
+> offset! Is there a way to hide Tempe1? I only need 1 as well as the internal
+> watch temperature."
+
+It was a bug, it was not device-specific, and Liryc was right to ask. The
+setting had been in the menu since 0.6 and no source file ever read it
+(issue #2). **Fixed in 1.0.0.** This is the single strongest thing in the
+What's New entry and is why it leads.
+
+All three are worth replying to. Liryc and Jacek waited two years for an
+answer; Graham is a 5-star reviewer who asked for something that now exists.
+
+### b. Two "doesn't work" reports are both the old fixed layout
+
+> **Роман Левенко**, 23 Jul 2023, 0.65 — "Doesn't work with FR 965"
+
+> **Kaloyan Palatov**, 24 May 2025, 0.68 — "Doesn't really work/buggy on Garmin
+> instinct 2S Solar"
+
+Neither is a missing device. `fr965` has been in the manifest since the initial
+commit, and `instinct2s` is the product id Garmin uses for "Instinct® 2S /
+Solar / Dual Power", so both watches were nominally supported when those
+reviews were written.
+
+What they have in common is screen size. The layout before 1.0.0 was hardcoded
+to 260x260:
+
+| Device | Resolution | Against a 260x260 layout |
+|---|---|---|
+| Forerunner 965 | 454x454 | drawn at about half size, off centre |
+| Instinct 2S / Solar | 163x156 | overflows the screen, and is not square |
+| fēnix 7 / 7 Pro | 260x260 | correct — the size it was built for |
+
+That is a good explanation for "doesn't work" on exactly those two watches and
+not on the fēnix line, and 1.0.0 derives every dimension from `dc` instead.
+**Not proven** — neither watch is here to test on — but it is the most likely
+cause, and the What's New entry now names both devices so those reviewers see
+it.
+
+### c. One report that is probably not a bug
+
+> **Japigia**, 6 Jun 2024, 0.68 — "The Only bug is that Min and max Is not
+> showing at all on fenix 7 pro."
+
+fēnix 7 Pro is 260x260, the native size for the old layout, so this is not the
+layout problem above. The page 1 parsing is not it either: it was checked field
+for field against openant's Environment profile against a real tempe while
+fixing issue #11.
+
+The likely causes, in order:
+
+1. The slot is on the internal sensor (ID `-1`), which has no 24 hour min or
+   max at all and correctly shows `--`. The description never said so before;
+   section 2 now does, and this is the single most likely source of
+   "it's broken" reviews.
+2. A tempe that has not yet accumulated 24 hours of history broadcasts the
+   invalid sentinel, which also shows `--`.
+
+Tracked as an issue rather than guessed at. If it turns up again after 1.0.0
+ships with the clearer description, it is worth asking which ID the slot is on.
+
+### d. Feature requests, not defects
+
+> **Niki**, 1 Aug 2023, 0.65 — "Please add time and date of last Tempe update
+> and vibration when new data is received."
+
+The first half is nearly free: `TempItem.tmLast` already holds the timestamp
+and `durStr()` already formats an age — nothing displays it. The second half is
+a bigger question, since a widget vibrating on every sensor broadcast would be
+intrusive and costs battery. Both filed, neither in 1.0.0.
+
+### e. What people like, worth protecting
+
+The offset is the most praised feature — Emerson twice, and Graham led with it.
+Three reviewers value multiple tempes at once (Snowcat runs three). Two German
+reviewers single out how simple it is to configure. None of that should get
+harder in the name of new features.
 
 ---
 
+## 7. Draft replies
+
+Short, no promises beyond what is shipping.
+
+**Graham Heyes** (and the same answer suits Liryc and Jacek Betler):
+
+```
+Thanks Graham, and sorry for the slow reply. You were right - "Number of
+Tempe" was in the settings but the widget never actually read it, so it
+always showed three. That is fixed in 1.0.0. Set Number of Tempe to 2, leave
+the first slot on ID 0 for your tempe, and set the second slot's ID to -1 for
+the watch's internal sensor. You will get exactly the two screens you wanted.
+```
+
+**Kaloyan Palatov:**
+
+```
+Thanks for flagging it. The layout was fixed to one screen size, which did not
+suit the Instinct 2S at all. 1.0.0 rebuilds it to fit whatever screen it is
+on - worth another try, and do let me know if anything still looks wrong.
+```
+
+**Роман Левенко:**
+
+```
+The layout was hardcoded for a 260x260 screen, which would have looked wrong
+on the 965's larger display. 1.0.0 scales to the screen properly. Worth
+another try.
+```
+
+**Japigia:**
+
+```
+Thanks. Worth checking which ID that slot is set to - the 24hr min and max
+come from the tempe itself, so a slot on the internal sensor (-1) only ever
+shows the current temperature and "--" for min and max. A tempe also needs 24
+hours before it reports them. If it is a tempe that has been running longer
+than that, let me know and I will dig further.
+```
+
+**Niki:**
+
+```
+Thanks - the time since the last update is a good idea and I have it on the
+list. Vibration on every update I am more cautious about, as a tempe
+broadcasts often and it would be both distracting and hard on the battery.
+```
+
 ## Before submitting
 
-- [ ] Merge PRs #12–#15 and decide the version number (section 1)
+- [ ] Merge PRs #12–#16. Everything is v1.0.0; there is no 1.0.1
 - [ ] Run `tools/build-matrix.sh` from the merged master and upload the
       rebuilt `export/TempeWidget.iq` — the current one predates all four PRs
 - [ ] Look at the glance view once. It has been measured, never seen
@@ -285,3 +397,5 @@ For reference, TempX shipped the same thing in its 0.14: "ability to select
 - [ ] Capture and replace the screenshots
 - [ ] Remember the listing has 1K+ downloads and a 4.4 rating — this reaches
       real users
+- [ ] Reply to the reviewers once it is live (section 7). Three of them
+      reported the `Number of Tempe` bug that 1.0.0 fixes
