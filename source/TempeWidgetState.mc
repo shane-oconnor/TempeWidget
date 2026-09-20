@@ -260,23 +260,32 @@ class TempItem
         }
     }
     //---------------------------------
+    //Storage is flash, and this ran fifteen times every five seconds for as
+    //long as the widget was open. The in-memory fields mirror exactly what was
+    //last written, so passing the old field value in lets an unchanged key be
+    //skipped. A sensor that is broadcasting nothing new now costs no writes.
+    function put(key, val, valOld)
+    {
+        if (val != valOld) {Application.Storage.setValue(key+i, val);}
+    }
+
+    //---------------------------------
     function checkTimeout(fClear,tmOut)
     {    
         //if (true)
         if (fClear || ((tmLast != null) && (tmLast < tmOut)))
         {
+            put("Temp",          null, temp);
+            put("MinTemp",       null, tempMin);
+            put("MaxTemp",       null, tempMax);
+            put("tmTemp",        null, tmLast);
+            put("StatusBattery", 6,    batStatus);
+
             tmLast = null;
             temp = null;
             tempMin = null;
             tempMax = null;
-            //tempOffset = null;
             batStatus = 6;
-            Application.Storage.setValue("Temp"+i,temp);
-            Application.Storage.setValue("MinTemp"+i,tempMin);
-            Application.Storage.setValue("MaxTemp"+i,tempMax);
-            Application.Storage.setValue("tmTemp"+i,tmLast);
-            Application.Storage.setValue("StatusBattery"+i, batStatus);
-            //Application.Storage.setValue("OffsetTemp"+i, tempOffset);
         }
     }
     //---------------------------------
@@ -284,24 +293,17 @@ class TempItem
     {
         if ((tempe != null) && (tempe.tmTemp != null))
         {
+            put("Temp",          tempe.iTemp,         temp);
+            put("MinTemp",       tempe.minTemp,       tempMin);
+            put("MaxTemp",       tempe.maxTemp,       tempMax);
+            put("tmTemp",        tempe.tmTemp,        tmLast);
+            put("StatusBattery", tempe.batteryStatus, batStatus);
+
             temp = tempe.iTemp;
             tempMin = tempe.minTemp;
             tempMax = tempe.maxTemp;
             tmLast = tempe.tmTemp;
             batStatus = tempe.batteryStatus;
-            Application.Storage.setValue("Temp"+i,temp);
-            Application.Storage.setValue("MinTemp"+i,tempMin);
-            Application.Storage.setValue("MaxTemp"+i,tempMax);
-            Application.Storage.setValue("tmTemp"+i,tmLast);
-            Application.Storage.setValue("StatusBattery"+i, batStatus);
-            //Application.Storage.setValue("OffsetTemp"+i, tempOffset);
-            //System.println("UpdateTempeTemp: " + toStr());
-            //System.println("UpdateTempeTemp: temp " + temp);
-            //System.println("UpdateTempeTemp: tempMin " + (Application.Storage.getValue("MinTemp"+i)));
-            //System.println("UpdateTempeTemp: tempMax " + tempMax);
-            //System.println("UpdateTempeTemp: tmLast " + tmLast);
-            //System.println("UpdateTempeTemp: batStatus " + batStatus);
-            //System.println("UpdateTempeTemp: tempOffset " + tempOffset);
         }
     }
     //---------------------------------
@@ -312,14 +314,24 @@ class TempItem
             if (tempIn != null)
             {
      
+                var tmNow = Time.now().value();
+
+                put("Temp",          tempIn, temp);
+                put("tmTemp",        tmNow,  tmLast);
+                //An internal or paired sensor has no ANT min/max or battery
+                //page. These were already being cleared in storage; the fields
+                //were not, so the view kept showing a battery reading that
+                //storage said did not exist until the next launch.
+                put("MinTemp",       null,   tempMin);
+                put("MaxTemp",       null,   tempMax);
+                put("StatusBattery", null,   batStatus);
+
                 temp = tempIn;
-                tmLast = Time.now().value();
-                Application.Storage.setValue("Temp"+i,temp);
-                Application.Storage.setValue("tmTemp"+i,tmLast);
-                Application.Storage.setValue("MinTemp"+i,null);
-                Application.Storage.setValue("MaxTemp"+i,null);
-                Application.Storage.setValue("StatusBattery"+i, null);
-                //System.println("UpdateTemp: tempOffset " + tempOffset);
+                tmLast = tmNow;
+                tempMin = null;
+                tempMax = null;
+                batStatus = null;
+
                 if (fDbg) {System.println("UpdateTemp: temp " + temp);}
             }
             //System.println("UpdateTemp: " + toStr());
