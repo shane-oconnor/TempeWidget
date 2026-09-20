@@ -10,3 +10,12 @@ export/
 
 # macOS
 .DS_Store
+
+# Playwright MCP writes page snapshots and console logs here. Once logged in
+# to the Garmin developer portal these contain the account's email address and
+# page state, so they must never be committed. The browser profile itself lives
+# at ~/.claude/playwright-profile, outside this repo.
+.playwright-mcp/
+
+# Anything extracted from docs/store-listing.md for pasting into the portal
+docs/.store-copy/

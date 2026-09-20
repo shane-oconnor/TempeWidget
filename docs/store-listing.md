@@ -17,8 +17,15 @@ Update it when the listing changes, and note what actually went live.
 The Store version field is free text. It currently reads `0.68 Added EPIX`.
 
 ```
-1.0.0 Added fēnix 9 Pro
+1.0.0 fēnix 8/9, Venu 3/4, Instinct 3 and more
 ```
+
+The live field reads `0.68 Added EPIX`, so the convention is a number plus the
+headline of the release. 1.0.0's headline is device support: the live listing
+is built from 42 products and this one has **96**, so naming three or four of
+the best-known new families says more than a count would. Change it if you
+would rather lead with the fixes — `tools/store-copy.py` reads whatever is in
+this block, so the portal gets exactly what is written here.
 
 Everything in the repo is v1.0.0. Nothing has been uploaded to Connect IQ, so
 the tag absorbs all of it — the device support, the fixes, and the four PRs
@@ -130,7 +137,7 @@ This field holds the whole changelog, so the new entry goes on top and the rest
 stays as it is.
 
 ```
-1.0.0 Added fēnix 9 Pro, and the fēnix 8 and 9 families
+1.0.0 fēnix 8/9, Venu 3/4, Instinct 3 and more
 
 - The "Number of Tempe" setting now works. It has been in the settings menu
   for years but nothing read it, so all three slots were always active. Pick
