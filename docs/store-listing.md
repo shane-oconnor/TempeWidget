@@ -384,18 +384,38 @@ broadcasts often and it would be both distracting and hard on the battery.
 
 ## Before submitting
 
-- [ ] Merge PRs #12–#16. Everything is v1.0.0; there is no 1.0.1
-- [ ] Run `tools/build-matrix.sh` from the merged master and upload the
-      rebuilt `export/TempeWidget.iq` — the current one predates all four PRs
-- [ ] Look at the glance view once. It has been measured, never seen
-- [ ] Check the new launcher icon renders correctly on a real device or the
-      simulator -- the per-size icons in `resources-icon*/` have never been
-      seen on a watch, and `resources-icon70` is newer still
-- [ ] Decide whether to keep all 56 products or trim the untested ones
-      (section 4)
+Done:
+
+- [x] Merge PRs #12–#16. Everything is v1.0.0; there is no 1.0.1
+- [x] Rebuild `export/TempeWidget.iq` from merged master with
+      `tools/build-matrix.sh`. Built 2026-09-20 from `1be825f`: 56 products
+      pass at type-check levels 1 and 2, level 1 with zero warnings, store
+      export 100 of 100 devices, no skips. `tools/validate.py` reports 0
+      errors and 0 warnings. The `.iq` is the artifact to upload — it is
+      gitignored, so it exists only on the build machine and must be rebuilt
+      if anything changes
+
+Still to do, in the order that makes sense:
+
+- [ ] **Look at the glance view once.** Its geometry was verified numerically
+      on fēnix 9 Pro 51mm (359x130) and fēnix 6 (176x93) at slot counts 1, 2
+      and 3, but nobody has seen it render. It is the view most changed in
+      this release and the one users meet first. The simulator starts widget
+      apps in glance mode, so it is the first thing on screen
+- [ ] **Check the launcher icon on a device or the simulator.** The per-size
+      renders in `resources-icon*/` have never been seen on a watch, and
+      `resources-icon70` — the one venu2 needs — is newer than all the others
+- [ ] **Decide whether to keep all 56 products** or trim the untested ones
+      (section 4). The fēnix 8 and 9 families, fr970 and venu2 are in the
+      built `.iq`; uploading it claims support for every one of them, and
+      none has run on real hardware. Trimming means editing `manifest.xml`
+      and rebuilding
 - [ ] Confirm the version field, description and What's New above
-- [ ] Capture and replace the screenshots
+- [ ] Capture and replace the screenshots. The glance shot doubles as the
+      check above, so take it first
+- [ ] Upload the `.iq` and submit
+- [ ] Reply to the reviewers once it is live (section 7). Three of them
+      reported the `Number of Tempe` bug that 1.0.0 fixes, and two of those
+      have been waiting since 2023
 - [ ] Remember the listing has 1K+ downloads and a 4.4 rating — this reaches
       real users
-- [ ] Reply to the reviewers once it is live (section 7). Three of them
-      reported the `Number of Tempe` bug that 1.0.0 fixes
