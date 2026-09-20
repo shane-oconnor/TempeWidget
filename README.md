@@ -113,6 +113,24 @@ python3 tools/validate.py
 Compile coverage stays a local step — run `tools/build-matrix.sh` before
 tagging a release.
 
+## Releasing
+
+`tools/build-matrix.sh` writes `export/TempeWidget.iq`, which is what gets
+uploaded to the Connect IQ Store. Build it from a clean tree so the upload
+matches the tag.
+
+The Store listing copy — description, release notes, and what is generated
+rather than written by hand — is kept in
+[`docs/store-listing.md`](docs/store-listing.md), versioned alongside the
+release it describes.
+
+Launcher icons are per-device: 29 of the 43 products want 40x40 and use
+`resources/drawables/Therm2d.png`; the rest are rendered by
+[`tools/make-icons.py`](tools/make-icons.py) into `resources-icon<N>/` and
+mapped in `monkey.jungle`. When adding a product, check its
+`launcherIcon.width` in that device's `compiler.json` — if it is not 40, add
+the id to `SIZES`, rerun the script, and add a `resourcePath` line.
+
 ## Layout
 
 | Path | Role |
