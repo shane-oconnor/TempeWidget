@@ -70,19 +70,19 @@ class TempeWidgetSensor
 
             var temp = ((payload[4] & 0xF0) << 4) | payload[3];
             minTemp = (temp == 0x800 ? null
-                : (temp & 0x800) == 0x800 ? -(0xFFF - temp)
+                : (temp & 0x800) == 0x800 ? (temp - 0x1000)
                 : temp) * 0.1f;
 
             //maxTemp = (payload[5] << 4) | (payload[4] & 0x0F);
             temp = (payload[5] << 4) | (payload[4] & 0x0F);
             maxTemp = (temp == 0x800 ? null
-                : (temp & 0x800) == 0x800 ? -(0xFFF - temp)
+                : (temp & 0x800) == 0x800 ? (temp - 0x1000)
                 : temp) * 0.1f;
 
             //iTemp = payload[6] + (payload[7]<<8);
             temp = (payload[7] << 8) | payload[6];
             iTemp = (temp == 0x8000 ? null
-                : (temp & 0x8000) == 0x8000 ? -(0xFFFF - temp)
+                : (temp & 0x8000) == 0x8000 ? (temp - 0x10000)
                 : temp) * 0.01f;
 
             tmTemp = Time.now().value(); //epoch seconds - survives reboot, no rollover
