@@ -220,7 +220,12 @@ def check_properties_are_read(declared):
 # ------------------------------------------------------------- 7. debug logs
 
 def check_println_gated():
-    """CLAUDE.md: debug output must be wrapped in `if (fDbg)`."""
+    """CLAUDE.md: debug output must be wrapped in `if (fDbg)`.
+
+    A println inside a catch block is exempt. Reporting a failure that was
+    actually caught is not debug logging, and silencing it behind a flag the
+    user has switched off is how a real fault goes unnoticed.
+    """
     for path in source_files():
         text = strip_comments(read(path))
         # Walk the file tracking, for each open brace, whether the block it
@@ -234,8 +239,11 @@ def check_println_gated():
                 line += 1
             elif ch == "{":
                 head = text[max(0, i - 200):i]
-                guarded.append("fDbg" in head.rsplit(")", 1)[0].rsplit("if", 1)[-1]
-                               if "if" in head else False)
+                if re.search(r"catch\s*\([^()]*\)\s*$", head):
+                    guarded.append(True)
+                else:
+                    guarded.append("fDbg" in head.rsplit(")", 1)[0].rsplit("if", 1)[-1]
+                                   if "if" in head else False)
             elif ch == "}":
                 if guarded:
                     guarded.pop()
