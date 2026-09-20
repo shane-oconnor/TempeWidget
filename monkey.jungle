@@ -1,2 +1,20 @@
 project.manifest = manifest.xml
 project.typecheck = 1
+
+# Per-device launcher icons. 29 of the 43 products want 40x40 and use the
+# default resources/ copy; these are the sizes that differ, rendered from
+# the same geometry rather than upscaled. See tools/make-icons.py.
+instinctcrossover.resourcePath = $(instinctcrossover.resourcePath);resources-icon26
+fr55.resourcePath = $(fr55.resourcePath);resources-icon35
+instinct2s.resourcePath = $(instinct2s.resourcePath);resources-icon54
+epix2.resourcePath = $(epix2.resourcePath);resources-icon60
+epix2pro42mm.resourcePath = $(epix2pro42mm.resourcePath);resources-icon60
+epix2pro47mm.resourcePath = $(epix2pro47mm.resourcePath);resources-icon60
+epix2pro51mm.resourcePath = $(epix2pro51mm.resourcePath);resources-icon60
+fr265.resourcePath = $(fr265.resourcePath);resources-icon60
+marq2.resourcePath = $(marq2.resourcePath);resources-icon60
+marq2aviator.resourcePath = $(marq2aviator.resourcePath);resources-icon60
+descentg1.resourcePath = $(descentg1.resourcePath);resources-icon62
+instinct2.resourcePath = $(instinct2.resourcePath);resources-icon62
+fenix9pro51mm.resourcePath = $(fenix9pro51mm.resourcePath);resources-icon65
+fr965.resourcePath = $(fr965.resourcePath);resources-icon65

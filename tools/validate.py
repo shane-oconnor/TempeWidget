@@ -247,6 +247,62 @@ def check_println_gated():
             i += 1
 
 
+# ------------------------------------------------------- 8. launcher icons
+
+def png_size(path):
+    """Width and height from a PNG IHDR, without needing Pillow in CI."""
+    import struct
+    with open(path, "rb") as fh:
+        head = fh.read(24)
+    if head[:8] != b"\x89PNG\r\n\x1a\n":
+        return None
+    return struct.unpack(">II", head[16:24])
+
+
+def check_launcher_icons(products):
+    """Per-device icon folders must hold an icon of the size they claim, and
+    monkey.jungle must map them to products that actually exist."""
+    jungle = os.path.join(ROOT, "monkey.jungle")
+    text = read(jungle) if os.path.exists(jungle) else ""
+
+    on_disk = set()
+    for name in sorted(os.listdir(ROOT)):
+        m = re.fullmatch(r"resources-icon(\d+)", name)
+        if not m:
+            continue
+        size = int(m.group(1))
+        on_disk.add(name)
+        icon = os.path.join(ROOT, name, "drawables", "Therm2d.png")
+        if not os.path.exists(icon):
+            err(f"{name}/drawables/Therm2d.png: missing")
+            continue
+        got = png_size(icon)
+        if got is None:
+            err(f"{name}/drawables/Therm2d.png: not a PNG")
+        elif got != (size, size):
+            err(f"{name}/drawables/Therm2d.png is {got[0]}x{got[1]}, but the "
+                f"folder name promises {size}x{size}")
+        dx = os.path.join(ROOT, name, "drawables", "drawables.xml")
+        if not os.path.exists(dx):
+            err(f"{name}/drawables/drawables.xml: missing")
+        elif 'id="LauncherIcon"' not in read(dx):
+            err(f"{name}/drawables/drawables.xml: does not define LauncherIcon")
+
+    referenced = set()
+    for prod, folder in re.findall(
+            r"^(\S+)\.resourcePath\s*=.*?;(resources-icon\d+)\s*$",
+            text, re.M):
+        referenced.add(folder)
+        if prod not in products:
+            err(f"monkey.jungle: resourcePath set for '{prod}', which is not "
+                f"an <iq:product> in manifest.xml")
+        if folder not in on_disk:
+            err(f"monkey.jungle: '{prod}' points at {folder}/, which does not exist")
+
+    for folder in sorted(on_disk - referenced):
+        warn(f"{folder}/ exists but monkey.jungle maps no product to it")
+
+
 BASELINE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "baseline.txt")
 
 
@@ -279,6 +335,7 @@ def main():
     check_properties_are_read(declared_prop)
 
     check_println_gated()
+    check_launcher_icons(set(products))
 
     baseline = load_baseline()
     matched = set()
