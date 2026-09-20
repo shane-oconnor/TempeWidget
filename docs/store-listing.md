@@ -207,12 +207,25 @@ products in 0.68.
 So this is **not** copy to update. Uploading the new `.iq` adds the rows by
 itself. Nothing to do by hand.
 
-The product count has moved since this was first drafted: **56**, not 43. The
-manifest picked up the fēnix 8 and fēnix 9 families, plus fr970 and venu2, as
-their device definitions were installed locally. The store export now reports
-100 of 100 devices built. That is a much wider device claim than 0.68 made, and
-none of the new ones have been tested on hardware — worth a moment's thought
-before submitting, since every one of them becomes a row on the listing.
+The product count has moved a long way since this was first drafted: **96**,
+not 43, and the store export reports **154 of 154 devices built** against the
+60 rows the live 0.68 listing shows.
+
+It grew in two steps. The fēnix 8 and 9 families, fr970 and venu2 arrived on
+their own as their device definitions were installed locally. Then 40 more were
+added deliberately — every installed device definition was probe-built to find
+which ones actually work, and these are the ones that build cleanly and keep
+the glance view. Issue #20 records the evidence, including the 25 that were
+rejected because their app type has no glance and the 11 Edge and Approach
+devices held back as a different product category.
+
+**None of the new devices has been tested on hardware.** That is a much wider
+claim than 0.68 made, on a listing with 1K+ downloads and a 4.4 rating. What
+is verified: all 96 build at both type-check levels with level 1 at zero
+warnings, all expose Toybox.Ant, AntPlus and SensorHistory, memory use is
+about 15% of the tightest limit, and the glance layout was traced on the four
+screen extremes — Venu X1 at 448x486, Instinct E 40mm at 166x166, fēnix 9 Pro
+51mm and fēnix 6 — with no column overflowing at any slot count.
 
 ---
 
@@ -405,10 +418,11 @@ Still to do, in the order that makes sense:
 - [ ] **Check the launcher icon on a device or the simulator.** The per-size
       renders in `resources-icon*/` have never been seen on a watch, and
       `resources-icon70` — the one venu2 needs — is newer than all the others
-- [x] **Decided: keep all 56 products.** Confirmed 2026-09-20. The fēnix 8
-      and 9 families, fr970 and venu2 stay in the uploaded `.iq` even though
-      none has run on real hardware. A further 40 devices are candidates for
-      a later release — see issue #20, which carries the build evidence
+- [x] **Decided: 96 products.** Confirmed 2026-09-20. The original 56 stay,
+      and the 40 candidates from issue #20 were added to 1.0.0 rather than
+      held for a later release. Store export is 154 of 154 devices. Nothing
+      was removed: all 96 were audited for Toybox.Ant, AntPlus, SensorHistory
+      and a widget/watchApp type, and all 96 pass
 - [ ] Confirm the version field, description and What's New above
 - [ ] Capture and replace the screenshots. The glance shot doubles as the
       check above, so take it first
