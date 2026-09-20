@@ -1,0 +1,3 @@
+[     650ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://apps.garmin.com/apps/be3a72ae-ad3c-49ab-9aa0-f44578caec63:0
+[    1173ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://apps.garmin.com/_next/data/l31LKbS0DWq5btzdPQnEZ/en-US/apps/be3a72ae-ad3c-49ab-9aa0-f44578caec63.json:0
+[    1264ms] [LOG] %c [Garmin Analytics] Logging is currently disabled. Set the "enableMatomoLogs" cookie to TRUE to enable it. This option is only available in the TEST environment. background-color: #0f0f0f; font-size: 15px; color: #FFA500 @ https://apps.garmin.com/_next/static/chunks/pages/_app-ef4d22bb97f1fc26.js:0

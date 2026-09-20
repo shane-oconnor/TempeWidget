@@ -130,3 +130,12 @@ arrive in 0.1 °C units. Offsets and °F conversion are applied at render time,
 never to the stored value.
 
 [`CLAUDE.md`](CLAUDE.md) documents the conventions in more depth.
+
+## Acknowledgements
+
+Based on the [TempX](https://apps.garmin.com/apps/cd341b2d-aa37-40f9-b5b6-4aff2416e535)
+widget by ekutter, with thanks for sharing the code base.
+
+## Licence
+
+[MIT](LICENSE).

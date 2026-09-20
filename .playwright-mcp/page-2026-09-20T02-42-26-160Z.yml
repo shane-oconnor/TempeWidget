@@ -1,0 +1,26 @@
+- generic [ref=f1e2]:
+  - navigation [ref=f1e3]:
+    - link "GarminConnect IQ" [ref=f1e5] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f1e12]:
+      - textbox "Search by App Title or Description" [ref=f1e13]
+      - button "Search" [ref=f1e14] [cursor=pointer]:
+        - generic [ref=f1e15]: 
+  - main [ref=f1e16]:
+    - generic "Loading..." [ref=f1e18]
+  - contentinfo [ref=f1e19]:
+    - generic [ref=f1e20]:
+      - generic [ref=f1e21]:
+        - generic [ref=f1e22]: Copyright © 1996-2026 Garmin Ltd. or its subsidiaries
+        - generic [ref=f1e23]: "Version: 4.26.2"
+      - generic [ref=f1e24]:
+        - link "Developers" [ref=f1e25] [cursor=pointer]:
+          - /url: https://developer.garmin.com/
+        - link "Privacy Policy" [ref=f1e26] [cursor=pointer]:
+          - /url: https://www.garmin.com/en-US/privacy/connectiq/policy/
+        - link "Terms of Use" [ref=f1e27] [cursor=pointer]:
+          - /url: https://www.garmin.com/en-US/legal/terms-of-use/
+        - link "Security" [ref=f1e28] [cursor=pointer]:
+          - /url: https://www.garmin.com/en-US/legal/security/
+        - link "Help" [ref=f1e29] [cursor=pointer]:
+          - /url: https://support.garmin.com/en-US/?productID=616398&tab=topics
