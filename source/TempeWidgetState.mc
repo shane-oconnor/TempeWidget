@@ -1,7 +1,11 @@
 import Toybox.System;
 import Toybox.Application;
+import Toybox.Lang;
 import Toybox.WatchUi;
+import Toybox.Sensor;
 import Toybox.SensorHistory;
+import Toybox.Time;
+import Toybox.Timer;
 
 (:glance)const cTempItem = 3; 
 (:glance)var rgTemp = new [cTempItem];
@@ -10,11 +14,11 @@ import Toybox.SensorHistory;
 class State
 {
 
-    static var timeout; //in milliseconds
+    static var timeout; //in seconds
     var fDbg=true;
     var fBtry=true;
     var fWhiteBG=true;
-    var timer = new WatchUi.Timer.Timer();
+    var timer = new Timer.Timer();
 
     //-------------------------------------------
     function initialize()
@@ -48,7 +52,7 @@ class State
     //---------------------------------
     function checkTimeout(fClear)
     {
-        var tmOut = System.getTimer() - timeout;
+        var tmOut = Time.now().value() - timeout;
         for (var i = 0; i < cTempItem; ++i) 
         {
             rgTemp[i].checkTimeout(fClear,tmOut);
@@ -66,10 +70,16 @@ class State
         if ((Toybox has :SensorHistory) && (SensorHistory has :getTemperatureHistory))
         {        
             var tempIter = SensorHistory.getTemperatureHistory({:period => 1});
-            var tempInt = tempIter.next().data;
-            //System.println("tempInt : " + tempInt);
-            //System.println("getMax : " + SensorHistory.getMax().data);
-            for (var i = 0; i < cTempItem; ++i) {rgTemp[i].updateTemp(tempInt,-1);}          
+            if (tempIter != null)
+            {
+                var sample = tempIter.next();
+                if ((sample != null) && (sample.data != null))
+                {
+                    var tempInt = sample.data;
+                    //System.println("tempInt : " + tempInt);
+                    for (var i = 0; i < cTempItem; ++i) {rgTemp[i].updateTemp(tempInt,-1);}          
+                }
+            }
         }
         
         for (var i = 0; i < cTempItem; ++i) {rgTemp[i].updateTempeTemp();}          
@@ -86,7 +96,7 @@ class State
     
     //---------------------------------
     //this is for the paired tempe
-    function onSensorEvents(sinfo) //
+    function onSensorEvents(sinfo as Sensor.Info) as Void //
     {
         if (sinfo != null)
         {
@@ -100,7 +110,7 @@ class State
     //-----------------------------------------------
     function updateSettings()
     {
-        timeout = getProp("Timeout",1200) * 1000;
+        timeout = getProp("Timeout",1200); //seconds
         fDbg = getProp("Dbg",false);
         fBtry = getProp("Btry",true);
         fWhiteBG = getProp("WhiteBG",false); //white background
@@ -132,7 +142,7 @@ class TempItem
     var lbl;
     var tos; // tempoffset when tempe not accurate
     var disable=false; //disable the Tempe screen property
-    var tmLast;  //time the last temperature was recorded
+    var tmLast;  //time the last temperature was recorded, epoch seconds
     var temp;    //most recent temperature - null if none
     var tempe; //the tempe object, null if internal or paired
     var tempMin; //min temp on Tempe
@@ -176,12 +186,24 @@ class TempItem
     }
 
     //---------------------------------
+    //applies the configured offset; null in stays null out
+    function adj(val)
+    {
+        if (val == null) {return(null);}
+        if (tos == null) {return(val);}
+        return(val + tos);
+    }
+    function tempAdj() {return(adj(temp));}
+    function minAdj()  {return(adj(tempMin));}
+    function maxAdj()  {return(adj(tempMax));}
+
+    //---------------------------------
     function fExpiring()
     {
         if (tmLast == null) {return(false);} //it's expired!
         
         
-        var pct = (System.getTimer() - tmLast).toFloat() / State.timeout;
+        var pct = (Time.now().value() - tmLast).toFloat() / State.timeout;
         //System.println(Lang.format("$1$: tmOut %: $2$",[i,pct]));
         return(pct > 0.50);     
     }
@@ -281,7 +303,7 @@ class TempItem
             {
      
                 temp = tempIn;
-                tmLast = System.getTimer();
+                tmLast = Time.now().value();
                 Application.Storage.setValue("Temp"+i,temp);
                 Application.Storage.setValue("tmTemp"+i,tmLast);
                 Application.Storage.setValue("MinTemp"+i,null);

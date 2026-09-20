@@ -56,34 +56,9 @@ class TempeWidgetGlanceView extends WatchUi.GlanceView {
 
         for (var i = 0; i < maxLoop; ++i) 
         {
-            var rgtemp, rgtempMax, rgtempMin;
-
-            if(rgTemp[i].tos != null) 
-            {
-                if (rgTemp[i].temp != null )
-                {
-                    rgtemp = rgTemp[i].temp + rgTemp[i].tos;
-                } else 
-                {
-                    rgtemp = rgTemp[i].temp;
-                }
-
-                if (rgTemp[i].tempMin != null )
-                {
-                    rgtempMin = rgTemp[i].tempMin + rgTemp[i].tos;
-                } else 
-                {
-                    rgtempMin = rgTemp[i].tempMin;
-                }
-                if (rgTemp[i].tempMax != null )
-                {
-                    rgtempMax = rgTemp[i].tempMax + rgTemp[i].tos;
-                } else 
-                {
-                    rgtempMax = rgTemp[i].tempMax;
-                }
-
-            }
+            var rgtemp    = rgTemp[i].tempAdj();
+            var rgtempMin = rgTemp[i].minAdj();
+            var rgtempMax = rgTemp[i].maxAdj();
 
             dc.setColor(ClrWhite, ClrTrans);
             dc.drawText(centerX, valueY, F1, strTempGlance(rgtemp), Graphics.TEXT_JUSTIFY_CENTER);

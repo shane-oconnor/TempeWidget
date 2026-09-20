@@ -1,6 +1,7 @@
 import Toybox.Application;
 import Toybox.System;
 import Toybox.Lang;
+import Toybox.Time;
 
 
 const ClrTrans = -1;//Graphics.COLOR_TRANSPARENT;
@@ -34,7 +35,7 @@ function numStr(num)
 function durStr(tm)
 {
     if (tm == null) {return("--");}
-    return(((System.getTimer() - tm)/1000).format("%.0f"));
+    return((Time.now().value() - tm).toString()); //tm is epoch seconds
 }
 
 (:glance)

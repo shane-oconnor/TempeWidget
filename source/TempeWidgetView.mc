@@ -10,38 +10,47 @@ class TempeWidgetView extends WatchUi.View {
     var state;
 
     var screenNum = 0;
-    
-    var background_color = Graphics.COLOR_BLACK;
-    var width_screen, height_screen;
 
-    var batt_width_rect = 40; // original 20
-    var batt_height_rect = 20; // original 10
-    var batt_width_rect_small = 4; //original 2
-    var batt_height_rect_small = 10; //original 5
-    var batt_x, batt_y, batt_x_small, batt_y_small;
-
-    var deviceSettings = System.getDeviceSettings();
-
-    var screenS = deviceSettings.screenShape;
-
-   // System.println("Screen Shape : " + screenS.toString());
+    //Nothing in this view is a fixed pixel value. Every metric is derived from
+    //dc.getWidth()/getHeight() and the device's own font heights, so the same
+    //code lays out on a 176px Instinct and a 466px fenix 9 Pro 51mm.
+    //The system fonts already scale per device (fenix 7 "large" is 25px,
+    //epix 2 Pro 51mm is 40px), so only the geometry needed deriving.
 
     function initialize() {
         //System.println("Full: View.initialize");
-        //System.println("Screen Shape : " + screenS.toString());
         View.initialize();
         state = new State();
     }
 
     // Load your resources here
     function onLayout(dc as Dc) as Void {
-        setLayout(Rez.Layouts.MainLayout(dc));
     }
 
     // Called when this View is brought to the foreground. Restore
     // the state of this View and prepare it to be shown. This includes
     // loading resources into memory.
     function onShow() as Void {
+    }
+
+    //---------------------------------
+    //Largest font from ladder (ordered largest first) that renders every
+    //non-null string within maxW. Falls back to the smallest.
+    function fitFont(dc, strs, maxW, ladder)
+    {
+        for (var j = 0; j < ladder.size(); ++j)
+        {
+            var fFits = true;
+            for (var k = 0; k < strs.size(); ++k)
+            {
+                if ((strs[k] != null) && (dc.getTextWidthInPixels(strs[k], ladder[j]) > maxW))
+                {
+                    fFits = false;
+                }
+            }
+            if (fFits) {return(ladder[j]);}
+        }
+        return(ladder[ladder.size()-1]);
     }
 
     // Update the view
@@ -51,132 +60,96 @@ class TempeWidgetView extends WatchUi.View {
 
         var clrBack = state.fWhiteBG ? ClrWhite : ClrBlack;
         var clrFore = state.fWhiteBG ? ClrBlack : ClrWhite;
-        dc.setColor(clrFore, clrBack);
-        //var clrFore = ClrWhite;
-        var cOffsetTitle=-30;
         var i = screenNum;
+        var item = rgTemp[i];
 
+        dc.setColor(clrFore, clrBack);
         dc.clear();
 
-        var xCenter = dc.getWidth()/2;
-        var yLine = dc.getHeight()/6; // was /5 before adding battery
-        var y = yLine + yLine/2 + 22;
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        var xCenter = w/2;
 
-        dc.setColor(Graphics.COLOR_WHITE, -1);
+        //--- the rows we are going to stack -------------------------------
+        var strLbl = item.lbl;
+        var strDbg = state.fDbg ? item.getID().toString() : null;
+        var strT   = "Temp : " + strTemp(item.tempAdj());
+        var strMin = (item.tempMin != null) ? "Min : " + strTemp(item.minAdj()) : null;
+        var strMax = (item.tempMax != null) ? "Max : " + strTemp(item.maxAdj()) : null;
 
+        var batteryStatus = strBatt(item.batStatus);
+        var fShowBatt = state.fBtry && (item.getID() != -1) && (batteryStatus != 0);
 
-        //dc.drawText(xCenter+cOffsetTitle,15,Graphics.FONT_LARGE, "Tempe" + screenNum, Graphics.TEXT_JUSTIFY_CENTER);
+        //--- battery geometry, proportional to the screen -----------------
+        //15% of width reproduces the original 40px icon on a 260px fenix 7
+        var battW = w * 15 / 100;
+        var battH = battW / 2;
 
-        //dc.drawText(xCenter+cOffsetTitle,15,Graphics.FONT_LARGE, (rgTemp[i].lbl), Graphics.TEXT_JUSTIFY_CENTER);
+        //--- fonts --------------------------------------------------------
+        //82% keeps centred text clear of the bezel on round screens
+        var maxW = w * 82 / 100;
+        var ladder = [Graphics.FONT_LARGE, Graphics.FONT_MEDIUM, Graphics.FONT_SMALL,
+                      Graphics.FONT_TINY, Graphics.FONT_XTINY];
 
-        
-        var rgtemp, rgtempMax, rgtempMin;
+        var fVal = fitFont(dc, [strT, strMin, strMax], maxW, ladder);
+        var fLbl = fitFont(dc, [strLbl], maxW, ladder);
 
-        if(rgTemp[i].tos != null) 
+        var hLbl = dc.getFontHeight(fLbl);
+        var hVal = dc.getFontHeight(fVal);
+        var hDbg = dc.getFontHeight(Graphics.FONT_XTINY);
+        var gap  = hVal / 5;
+
+        //--- centre the whole stack vertically ----------------------------
+        var total = hLbl + gap + hVal;
+        if (strDbg != null) {total += hDbg;}
+        if (strMin != null) {total += gap + hVal;}
+        if (strMax != null) {total += gap + hVal;}
+        if (fShowBatt)      {total += gap + battH;}
+
+        var y = (h - total) / 2;
+        if (y < 0) {y = 0;}
+
+        //--- draw ---------------------------------------------------------
+        dc.setColor(clrFore, ClrTrans);
+        dc.drawText(xCenter, y, fLbl, strLbl, Graphics.TEXT_JUSTIFY_CENTER);
+        y += hLbl;
+
+        if (strDbg != null)
         {
-            if (rgTemp[i].temp != null )
-            {
-                rgtemp = rgTemp[i].temp + rgTemp[i].tos;
-            } else 
-            {
-                rgtemp = rgTemp[i].temp;
-            }
-
-            if (rgTemp[i].tempMin != null )
-            {
-                rgtempMin = rgTemp[i].tempMin + rgTemp[i].tos;
-            } else 
-            {
-                rgtempMin = rgTemp[i].tempMin;
-            }
-            if (rgTemp[i].tempMax != null )
-            {
-                rgtempMax = rgTemp[i].tempMax + rgTemp[i].tos;
-            } else 
-            {
-                rgtempMax = rgTemp[i].tempMax;
-            }
-
+            dc.setColor(ClrDkGray, ClrTrans);
+            dc.drawText(xCenter, y, Graphics.FONT_XTINY, strDbg, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.setColor(clrFore, ClrTrans);
+            y += hDbg;
         }
-        
-            
-        if ( self has :getSubscreen)
-        {
-            var a = getSubscreen();
-            var x2 = a.x + a.width/2;
-            var y2 = a.y + a.height/2;
-            //System.println("subscreen: " + x2 + ","+y2 + "," + a.toString());
+        y += gap;
 
-            //dc.drawText(xCenter,y,Graphics.FONT_LARGE, "Temp : " + strTemp(rgTemp[i].temp), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-            dc.setColor(clrFore,ClrTrans);
-            dc.drawText(xCenter+cOffsetTitle,15,Graphics.FONT_LARGE, (rgTemp[i].lbl), Graphics.TEXT_JUSTIFY_CENTER);
-            //dc.drawText(a.x-8,y,Graphics.FONT_LARGE, "Temp : ", Graphics.TEXT_JUSTIFY_RIGHT|Graphics.TEXT_JUSTIFY_VCENTER);
-            dc.drawText(x2, y2,Graphics.FONT_LARGE, strTempGlance(rgtemp), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(xCenter, y, fVal, strT, Graphics.TEXT_JUSTIFY_CENTER);
+        y += hVal + gap;
 
-            if (state.fDbg) 
-            {
-                System.println("Debug Mode Subscreen " + rgTemp[i].getID());
-                //dc.setColor(ClrLtGray,ClrTrans);
-                dc.drawText(xCenter-30,y2+15,F0, rgTemp[i].getID(), Graphics.TEXT_JUSTIFY_CENTER);
-                //dc.setColor(clrFore,ClrTrans);
-            }
-            
-        }
-        else
+        if (strMin != null)
         {
-            System.println("NO subscreen: ");
-            dc.setColor(clrFore,ClrTrans);
-            dc.drawText(xCenter,15,Graphics.FONT_LARGE, (rgTemp[i].lbl), Graphics.TEXT_JUSTIFY_CENTER);
-            dc.drawText(xCenter,y,Graphics.FONT_LARGE, "Temp : " + strTemp(rgtemp), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-            //dc.drawText(xCenter,y,Graphics.FONT_LARGE, "Temp : " + strTemp(rgTemp[i].temp), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-                        
-            if (state.fDbg) 
-            {
-                System.println("Debug Mode No Subscreen " + rgTemp[i].getID());
-                dc.setColor(ClrDkGray,ClrTrans);
-                dc.drawText(xCenter,y-32,F0, rgTemp[i].getID(), Graphics.TEXT_JUSTIFY_CENTER);
-                dc.setColor(clrFore,ClrTrans);
-            }
+            dc.drawText(xCenter, y, fVal, strMin, Graphics.TEXT_JUSTIFY_CENTER);
+            y += hVal + gap;
         }
 
-
-        y += yLine;
-
-        if(rgTemp[i].tempMin != null)
+        if (strMax != null)
         {
-            dc.drawText(xCenter,y,Graphics.FONT_LARGE,  "Min : " + strTemp(rgtempMin), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-            y += yLine;
+            dc.drawText(xCenter, y, fVal, strMax, Graphics.TEXT_JUSTIFY_CENTER);
+            y += hVal + gap;
         }
 
-        if(rgTemp[i].tempMax != null)
+        if (fShowBatt)
         {
-            dc.drawText(xCenter,y,Graphics.FONT_LARGE,  "Max : " + strTemp(rgtempMax), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-            y += yLine - 5;
+            drawBattery(dc, batteryStatus, clrFore, Graphics.COLOR_DK_RED, clrBack,
+                        xCenter, y, battW, battH);
         }
 
         drawDots(dc, clrFore, i);
 
-        //var batteryStatus = 3;
-        var batteryStatus = strBatt(rgTemp[i].batStatus);
-
-
-        System.println("batteryStatus : " + batteryStatus);
-
-
-        width_screen = dc.getWidth();
-        height_screen = dc.getHeight();
-
-        //get battery icon position
-        batt_x = xCenter - (batt_width_rect /2);
-        batt_y = y;
-        batt_x_small = batt_x + batt_width_rect;
-        batt_y_small = batt_y + ((batt_height_rect - batt_height_rect_small) / 2);
-
-        if (state.fBtry && (rgTemp[i].getID() != -1) && (batteryStatus != 0)) 
+        if (state.fDbg)
         {
-            drawBattery(dc, batteryStatus, clrFore, Graphics.COLOR_DK_RED, Graphics.COLOR_DK_GREEN);
+            System.println("onUpdate " + strDbg + " batteryStatus : " + batteryStatus);
         }
-
     }
 
     // Called when this View is removed from the screen. Save the
@@ -185,62 +158,75 @@ class TempeWidgetView extends WatchUi.View {
     function onHide() as Void {
     }
 
-    function drawBattery(dc, batteryStatus, primaryColor, lowBatteryColor, fullBatteryColor)
+    //---------------------------------
+    //xMid is the centre the icon should sit on; the terminal nub is included
+    //in the centring so the whole shape reads as centred, unlike before.
+    function drawBattery(dc, batteryStatus, primaryColor, lowBatteryColor, bgColor, xMid, y, bw, bh)
     {
-
         var battery = batteryStatus;
-        System.println("drawBattery battery : " + batteryStatus);
-        //if(battery == null) {battery = 6;}
 
-        // BATT_STATUS_NEW = 1, BATT_STATUS_GOOD = 2, BATT_STATUS_OK = 3, BATT_STATUS_LOW = 4, BATT_STATUS_CRITICAL = 5 
+        var nw = bw / 10;
+        if (nw < 2) {nw = 2;}
+        var nh = bh / 2;
+        if (nh < 3) {nh = 3;}
 
-        if(battery == 4)
+        var x  = xMid - ((bw + nw) / 2);
+        var nx = x + bw;
+        var ny = y + ((bh - nh) / 2);
+
+        // BATT_STATUS_NEW = 1, BATT_STATUS_GOOD = 2, BATT_STATUS_OK = 3, BATT_STATUS_LOW = 4, BATT_STATUS_CRITICAL = 5
+        // 6 is our own cleared/unknown sentinel (State.checkTimeout), not an ANT+ status
+
+        if((battery == 4) || (battery == 5)) //LOW or CRITICAL
         {
             primaryColor = lowBatteryColor;
         }
         else if(battery == 0)
         {
             primaryColor = Graphics.COLOR_TRANSPARENT;
-        } 
-
-        //System.println("drawBattery primaryColor : " + primaryColor.toString());
-
+        }
 
         dc.setColor(primaryColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawRectangle(batt_x, batt_y, batt_width_rect, batt_height_rect);
-        dc.setColor(background_color, Graphics.COLOR_TRANSPARENT);
-        dc.drawLine(batt_x_small-1, batt_y_small+1, batt_x_small-1, batt_y_small + batt_height_rect_small-1);
+        dc.drawRectangle(x, y, bw, bh);
+        dc.setColor(bgColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawLine(nx-1, ny+1, nx-1, ny + nh-1);
 
         dc.setColor(primaryColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawRectangle(batt_x_small, batt_y_small, batt_width_rect_small, batt_height_rect_small);
-        dc.setColor(background_color, Graphics.COLOR_TRANSPARENT);
-        dc.drawLine(batt_x_small, batt_y_small+1, batt_x_small, batt_y_small + batt_height_rect_small-1);
+        dc.drawRectangle(nx, ny, nw, nh);
+        dc.setColor(bgColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawLine(nx, ny+1, nx, ny + nh-1);
 
         dc.setColor(primaryColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(batt_x, batt_y, (batt_width_rect * (6 - battery) / 5), batt_height_rect);
+        dc.fillRectangle(x, y, (bw * (6 - battery) / 5), bh);
         if(battery == 3)
         {
-            dc.fillRectangle(batt_x_small, batt_y_small, batt_width_rect_small, batt_height_rect_small);
+            dc.fillRectangle(nx, ny, nw, nh);
         }
     }
 
+    //---------------------------------
+    //One dot per slot, sized and spaced off the screen width. At 260px this
+    //reproduces the previous r=3 / 9px-spacing column exactly.
     function drawDots(dc, primaryColor, i)
     {
-        dc.drawCircle(dc.getWidth()/20, dc.getHeight()/2, 3);
-        dc.drawCircle(dc.getWidth()/20, dc.getHeight()/2 - 9, 3);
-        dc.drawCircle(dc.getWidth()/20, dc.getHeight()/2 + 9, 3);
+        var w = dc.getWidth();
 
-        if(i == 0)
+        var r = w / 85;
+        if (r < 2) {r = 2;}
+
+        var x = w / 20;
+        if (x < r + 1) {x = r + 1;}
+
+        var step = r * 3;
+        var yTop = (dc.getHeight() / 2) - ((step * (cTempItem - 1)) / 2);
+
+        dc.setColor(primaryColor, ClrTrans);
+        for (var j = 0; j < cTempItem; ++j)
         {
-            dc.fillCircle(dc.getWidth()/20, dc.getHeight()/2 - 9, 3);
-        } else if ( i == 1)
-        {
-            dc.fillCircle(dc.getWidth()/20, dc.getHeight()/2, 3);
-        } else if ( i == 2)
-        {
-            dc.fillCircle(dc.getWidth()/20, dc.getHeight()/2 + 9, 3);
+            var yDot = yTop + (step * j);
+            dc.drawCircle(x, yDot, r);
+            if (j == i) {dc.fillCircle(x, yDot, r);}
         }
-
     }
 
 }

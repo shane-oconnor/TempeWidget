@@ -20,14 +20,14 @@ class TempeWidgetApp extends Application.AppBase {
     }
 
     // Return the initial view of your application here
-    function getInitialView() as Array<Views or InputDelegates>? {
+    function getInitialView() as [Views] or [Views, InputDelegates] {
 
         mainView = new TempeWidgetView();
 
-        return [ mainView, new TempeWidgetDelegate(mainView) ] as Array<Views or InputDelegates>;
+        return [ mainView, new TempeWidgetDelegate(mainView) ];
     }
 
-    (:glance) function getGlanceView() {
+    (:glance) function getGlanceView() as [GlanceView] or [GlanceView, GlanceViewDelegate] or Null {
         return [new TempeWidgetGlanceView()];
     }
 

@@ -14,8 +14,12 @@ class TempeWidgetDelegate extends WatchUi.BehaviorDelegate {
     //---------------------------------
     function onBack()
     {
-        System.exit(); //should never be needed - but fixed a bug on some device
-        return(false); 
+        //The guard is deliberate. Devices whose API marks System.exit() as
+        //no-return reject a bare "return" after it as unreachable; older
+        //widget-era devices reject its absence as "not all paths return a
+        //value". mainView is always set, so this satisfies both checkers.
+        if (mainView != null) {System.exit();} //fixed a bug on some device
+        return(false);
     }
     //---------------------------------
     function onSwipe(swipeEvent)
@@ -23,13 +27,12 @@ class TempeWidgetDelegate extends WatchUi.BehaviorDelegate {
         var dir = swipeEvent.getDirection();
         switch (dir)
         {
-        case WatchUi.SWIPE_RIGHT:
-            System.exit();
-            return(false);
         case WatchUi.SWIPE_UP:
             return nextScreen();
         case WatchUi.SWIPE_DOWN:
             return priorScreen();
+        case WatchUi.SWIPE_RIGHT:
+            System.exit();
         default:
             break;
         }

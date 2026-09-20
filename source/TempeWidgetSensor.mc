@@ -4,6 +4,7 @@ import Toybox.Ant;
 import Toybox.AntPlus;
 import Toybox.Sensor;
 import Toybox.SensorHistory;
+import Toybox.Time;
 
 
 (:glance)
@@ -27,7 +28,7 @@ class TempeWidgetSensor
         idSearch = id;
         if (id == -1) {id = 0;}
         // Get the channel
-        var chanAssign = new Ant.ChannelAssignment(0,Ant.NETWORK_PLUS);
+        chanAssign = new Ant.ChannelAssignment(Ant.CHANNEL_TYPE_RX_NOT_TX,Ant.NETWORK_PLUS);
         antChannel = new Ant.GenericChannel(method(:onMessage), chanAssign);
 
         deviceCfg = new Ant.DeviceConfig( {
@@ -51,7 +52,7 @@ class TempeWidgetSensor
     var minTemp;      //in 100ths degree C
     var maxTemp;      //in 100ths degree C
     var offsetTemp; //offset in 100ths degree C
-    var tmTemp;     //time of last temperature reading
+    var tmTemp;     //time of last temperature reading, epoch seconds
     var batteryStatus;
 
     
@@ -84,8 +85,8 @@ class TempeWidgetSensor
                 : (temp & 0x8000) == 0x8000 ? -(0xFFFF - temp)
                 : temp) * 0.01f;
 
-            tmTemp = System.getTimer();
-            //System.println("tmTemp = System.getTimer(): " + tmTemp);
+            tmTemp = Time.now().value(); //epoch seconds - survives reboot, no rollover
+            //System.println("tmTemp = Time.now().value(): " + tmTemp);
         } else if (pg == 82)
         {
             batteryStatus = (payload[7] >> 4) & 0x07; // Battery status
@@ -143,7 +144,7 @@ class TempeWidgetSensor
     var payload;
     //System.println("Just created payload var");
 
-    function onMessage(msg)
+    function onMessage(msg as Ant.Message) as Void
     {
         payload = msg.getPayload();
 
