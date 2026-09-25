@@ -57,7 +57,15 @@ class TempeWidgetGlanceView extends WatchUi.GlanceView {
         var rgVal = new [n]; //formatted readings, one per column
         var rgDim = new [n]; //true where that reading is on its way out
 
-        var item = rgTemp[0];
+        //The first Tempe that has a reading, or failing that the first slot
+        //with anything at all (the internal sensor), or slot 0 to draw "--".
+        var rgVis = state.rgVisible() as Lang.Array<Lang.Number>;
+        var i = (rgVis.size() > 0) ? rgVis[0] : 0;
+        for (var j = 0; j < rgVis.size(); ++j)
+        {
+            if (rgTemp[rgVis[j]].id >= 0) {i = rgVis[j]; break;}
+        }
+        var item = rgTemp[i];
         var fDim = item.fExpiring();
 
         rgLbl[0] = item.lbl;  rgVal[0] = strTempGlance(item.tempAdj()); rgDim[0] = fDim;

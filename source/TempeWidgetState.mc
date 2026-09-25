@@ -18,8 +18,9 @@ class State
     var fDbg=true;
     var fBtry=true;
     var fWhiteBG=true;
-    var cTempe=cTempItem; //visible/polled slots, 1..cTempItem, from TempeCount
     var timer = new Timer.Timer();
+    var scanner;      //TempeScanner while any slot is still looking for a Tempe
+    var rgSeen as Lang.Dictionary<Lang.Number, Lang.Array<Lang.Number?>> = {};  //device number => [epoch seconds last heard, rssi]
 
     //-------------------------------------------
     function initialize()
@@ -46,7 +47,7 @@ class State
         }
     }
     //---------------------------------
-    function onTimerTic() //every second
+    function onTimerTic() //every five seconds
     {
         if (fDbg) {System.println(strTimeOfDay(true) + "onTimerTic Sensor");}
         
@@ -62,12 +63,12 @@ class State
                 {
                     var tempInt = sample.data;
                     //System.println("tempInt : " + tempInt);
-                    for (var i = 0; i < cTempe; ++i) {rgTemp[i].updateTemp(tempInt,-1);}          
+                    for (var i = 0; i < cTempItem; ++i) {rgTemp[i].updateTemp(tempInt,-1);}
                 }
             }
         }
         
-        for (var i = 0; i < cTempe; ++i) {rgTemp[i].updateTempeTemp();}          
+        for (var i = 0; i < cTempItem; ++i) {rgTemp[i].updateTempeTemp();}
     
         WatchUi.requestUpdate();
     }
@@ -76,8 +77,9 @@ class State
     function done()
     {
         //("done: close sensor");
-        for (var i = 0; i < cTempItem; ++i) {rgTemp[i].releaseTempe();}          
-    }           
+        releaseScanner();
+        for (var i = 0; i < cTempItem; ++i) {rgTemp[i].releaseTempe();}
+    }
     
     //---------------------------------
     //this is for the paired tempe
@@ -87,7 +89,7 @@ class State
         {
             if ((sinfo has :temperature) && (sinfo.temperature != null)) 
             {
-                for (var i = 0; i < cTempe; ++i) {rgTemp[i].updateTemp(sinfo.temperature,-2);}          
+                for (var i = 0; i < cTempItem; ++i) {rgTemp[i].updateTemp(sinfo.temperature,-2);}
                 //System.println("paired temp: " + sinfo.temperature); //this hsould never be called
             }
         }
@@ -100,29 +102,122 @@ class State
         fBtry = getProp("Btry",true);
         fWhiteBG = getProp("WhiteBG",false); //white background
 
-        //The settings menu already constrains this to 1-3, but a property can
-        //also be pushed from the Connect API, so clamp rather than trust it.
-        cTempe = getProp("TempeCount",cTempItem);
-        if (cTempe < 1) {cTempe = 1;}
-        if (cTempe > cTempItem) {cTempe = cTempItem;}
-
-        //fDbg=true;
-        //System.println("timeout: " + timeout);
         rgTemp[0].updateSettings(0,"Tempe1",0.0,fDbg);
         rgTemp[1].updateSettings(0,"Tempe2",0.0,fDbg);
         rgTemp[2].updateSettings(-1,"Internal",0.0,fDbg);
         
-        //Release every slot, not just the active ones: a slot that has just
-        //been switched off, or repointed at a different device ID, has to give
-        //up its ANT channel before the new set is opened.
-        for (var i = 0; i < cTempItem; ++i) {rgTemp[i].releaseTempe();}   //delete any Tempe objects   
-        for (var i = 0; i < cTempe; ++i) {rgTemp[i].initTempe(false);} //init all specified ID's    
-        for (var i = 0; i < cTempe; ++i) {rgTemp[i].initTempe(true);}  //init all Zero ID's
-        
+        //Release every slot and the scanner: a slot that has just been switched
+        //off, or repointed at a different device ID, has to give up its ANT
+        //channel before the new set is opened.
+        releaseScanner();
+        for (var i = 0; i < cTempItem; ++i) {rgTemp[i].releaseTempe();}
+        for (var i = 0; i < cTempItem; ++i) {rgTemp[i].initTempe(false);} //specific IDs
+
+        //Slots at ID 0 want "a Tempe". One scanning channel hears every Tempe in
+        //range and onTempeSeen hands each new device number to the next such
+        //slot, which then opens a normal channel to that one sensor. Two
+        //Tempes land in two slots, and a slot that never hears a sensor never
+        //opens a channel - or a page.
+        if (cAuto() > 0)
+        {
+            try
+            {
+                scanner = new TempeScanner(self, fDbg);
+            } catch (ex)
+            {
+                System.println("Exception in TempeScanner: " + ex.getErrorMessage());
+                scanner = null;
+            }
+        }
+        //No scanning channel to be had: fall back to a wildcard search per
+        //slot, which is how every release before 1.1 found a Tempe.
+        if (scanner == null)
+        {
+            for (var i = 0; i < cTempItem; ++i) {rgTemp[i].initTempe(true);}
+        }
 
         WatchUi.requestUpdate();
     }
-    
+
+    //---------------------------------
+    //Slots still waiting for the scanner to hand them a Tempe.
+    function cAuto()
+    {
+        var c = 0;
+        for (var i = 0; i < cTempItem; ++i)
+        {
+            if ((rgTemp[i].id == 0) && (rgTemp[i].tempe == null)) {c++;}
+        }
+        return(c);
+    }
+
+    //---------------------------------
+    function releaseScanner()
+    {
+        if (scanner != null)
+        {
+            try
+            {
+                scanner.release();
+            } catch (ex)
+            {
+                //dropping the object regardless, as releaseTempe does
+            }
+            scanner = null;
+        }
+    }
+
+    //---------------------------------
+    //The scanner heard a Tempe. Remember it, and if a slot is still waiting
+    //for one, give it this device number for good: the ID is written back to
+    //the app settings so the slot's label and offset stay with this physical
+    //sensor, and so the Connect app shows which sensor that is. Setting the ID
+    //back to 0 there, or "Forget sensors" on the watch, starts the search over.
+    function onTempeSeen(id, rssi)
+    {
+        var fNew = !rgSeen.hasKey(id);
+        rgSeen[id] = [Time.now().value(), rssi];
+        if (!fNew) {return;}
+        if (fDbg) {System.println("scanner heard Tempe " + id);}
+
+        for (var i = 0; i < cTempItem; ++i)
+        {
+            if (rgTemp[i].getID() == id) {return;} //already someone's
+        }
+        for (var i = 0; i < cTempItem; ++i)
+        {
+            var item = rgTemp[i];
+            if ((item.id == 0) && (item.tempe == null))
+            {
+                item.assignID(id);
+                break;
+            }
+        }
+        if (cAuto() == 0) {releaseScanner();}
+        WatchUi.requestUpdate();
+    }
+
+    //---------------------------------
+    //The slots that get a page, in slot order: the internal and paired sources
+    //always, a Tempe only while it has a reading that has not timed out. There
+    //is no count to configure - a sensor that is switched off, out of range or
+    //not owned simply has no page.
+    function rgVisible() as Lang.Array<Lang.Number>
+    {
+        var rg = [] as Lang.Array<Lang.Number>;
+        for (var i = 0; i < cTempItem; ++i)
+        {
+            if (rgTemp[i].fVisible()) {rg.add(i);}
+        }
+        return(rg);
+    }
+
+    //---------------------------------
+    //True while a slot is still waiting to be handed a Tempe.
+    function fSearching()
+    {
+        return(cAuto() > 0);
+    }
 }
 
 
@@ -218,6 +313,25 @@ class TempItem
     {
         if (id != 0) {return(id);}
         return((tempe == null) ? null : tempe.antid);
+    }
+    //---------------------------------
+    function fVisible()
+    {
+        return((id < 0) || (temp != null));
+    }
+    //---------------------------------
+    //Bind an auto slot to the Tempe the scanner found. See State.onTempeSeen.
+    function assignID(idNew)
+    {
+        id = idNew;
+        try
+        {
+            Application.Properties.setValue("T"+i+"ID", idNew);
+        } catch (ex)
+        {
+            System.println("Properties.setValue(T"+i+"ID): " + ex.getErrorMessage());
+        }
+        initTempe(false);
     }
     //---------------------------------
     function releaseTempe()

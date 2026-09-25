@@ -41,10 +41,14 @@ class TempeWidgetView extends WatchUi.View {
 
         var clrBack = state.fWhiteBG ? ClrWhite : ClrBlack;
         var clrFore = state.fWhiteBG ? ClrBlack : ClrWhite;
-        var i = screenNum;
-        //TempeCount can shrink under us -- the user can change it in the Connect
-        //app while the widget is open -- leaving screenNum on a hidden slot.
-        if (i >= state.cTempe) {i = 0; screenNum = 0;}
+        //screenNum indexes the visible list, not the slot array. That list can
+        //shrink under us - a Tempe times out, or the settings change in the
+        //Connect app - so clamp it every draw. With nothing visible at all,
+        //fall back to slot 0, which then draws as "--".
+        var rgVis = state.rgVisible() as Lang.Array<Lang.Number>;
+        var cVis = rgVis.size();
+        if (screenNum >= cVis) {screenNum = 0;}
+        var i = (cVis > 0) ? rgVis[screenNum] : 0;
         var item = rgTemp[i];
 
         dc.setColor(clrFore, clrBack);
@@ -138,7 +142,7 @@ class TempeWidgetView extends WatchUi.View {
                         xCenter, y, battW, battH);
         }
 
-        drawDots(dc, clrFore, i, state.cTempe);
+        drawDots(dc, clrFore, screenNum, cVis);
 
         if (state.fDbg)
         {

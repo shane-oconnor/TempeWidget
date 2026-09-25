@@ -13,52 +13,71 @@
 	<property id="WhiteBG" type="boolean">false</property>
 	<property id="Dbg" type="boolean">false</property>
     <property id="Btry" type="boolean">true</property>
-    <property id="TempeCount" type="number">3</property>
 </properties>
 
+<!-- Groups show as sections in the Connect IQ app. The three sensor groups are
+     identical apart from the slot number; the prompt on each ID explains the
+     codes that used to live in the title. -->
 <settings>
-    <setting propertyKey="@Properties.Timeout" title="@Strings.TimeoutTitle">
-        <settingConfig type="numeric" min="2"/>
-    </setting>
-    <setting propertyKey="@Properties.T0Label" title="@Strings.T0LabelTitle">
-        <settingConfig type="alphaNumeric"  maxLength="12"/>
-    </setting>
-    <setting propertyKey="@Properties.T0ID" title="@Strings.T0IDTitle">
-        <settingConfig type="numeric" min="-2"/>
-    </setting>
-    <setting propertyKey="@Properties.T0Offset" title="@Strings.T0OffsetTitle">
-        <settingConfig type="numeric" min="-25" max="25"/>
-    </setting>
-    <setting propertyKey="@Properties.T1Label" title="@Strings.T1LabelTitle">
-        <settingConfig type="alphaNumeric"  maxLength="12"/>
-    </setting>
-    <setting propertyKey="@Properties.T1ID" title="@Strings.T1IDTitle">
-        <settingConfig type="numeric" min="-2"/>
-    </setting>
-    <setting propertyKey="@Properties.T1Offset" title="@Strings.T1OffsetTitle">
-        <settingConfig type="numeric" min="-25" max="25"/>
-    </setting>
-    <setting propertyKey="@Properties.T2Label" title="@Strings.T2LabelTitle">
-        <settingConfig type="alphaNumeric"  maxLength="12"/>
-    </setting>
-    <setting propertyKey="@Properties.T2ID" title="@Strings.T2IDTitle">
-        <settingConfig type="numeric" min="-2"/>
-    </setting>
-    <setting propertyKey="@Properties.T2Offset" title="@Strings.T2OffsetTitle">
-        <settingConfig type="numeric" min="-25" max="25"/>
-    </setting>
-    <setting propertyKey="@Properties.WhiteBG" title="@Strings.WhiteBGTitle">
-        <settingConfig type="boolean"/>
-    </setting>
-    <setting propertyKey="@Properties.Dbg" title="@Strings.DbgTitle">
-        <settingConfig type="boolean"/>
-    </setting>
-    <setting propertyKey="@Properties.Btry" title="@Strings.BtryTitle">
-        <settingConfig type="boolean"/>
-    </setting>
-    <setting propertyKey="@Properties.TempeCount" title="@Strings.TempeCountTitle">
-        <settingConfig type="numeric" min="1" max="3"/>
-    </setting>
+    <group id="Display" title="@Strings.GrpDisplay">
+        <setting propertyKey="@Properties.WhiteBG" title="@Strings.WhiteBGTitle">
+            <settingConfig type="boolean"/>
+        </setting>
+        <setting propertyKey="@Properties.Btry" title="@Strings.BtryTitle" prompt="@Strings.BtryPrompt">
+            <settingConfig type="boolean"/>
+        </setting>
+    </group>
+
+    <group id="Sensor1" title="@Strings.GrpS1">
+        <setting propertyKey="@Properties.T0Label" title="@Strings.LabelTitle">
+            <settingConfig type="alphaNumeric" maxLength="12"/>
+        </setting>
+        <setting propertyKey="@Properties.T0ID" title="@Strings.IDTitle" prompt="@Strings.IDPrompt">
+            <settingConfig type="numeric" min="-2"/>
+        </setting>
+        <setting propertyKey="@Properties.T0Offset" title="@Strings.OffsetTitle" prompt="@Strings.OffsetPrompt">
+            <settingConfig type="numeric" min="-25" max="25"/>
+        </setting>
+    </group>
+
+    <group id="Sensor2" title="@Strings.GrpS2">
+        <setting propertyKey="@Properties.T1Label" title="@Strings.LabelTitle">
+            <settingConfig type="alphaNumeric" maxLength="12"/>
+        </setting>
+        <setting propertyKey="@Properties.T1ID" title="@Strings.IDTitle" prompt="@Strings.IDPrompt">
+            <settingConfig type="numeric" min="-2"/>
+        </setting>
+        <setting propertyKey="@Properties.T1Offset" title="@Strings.OffsetTitle" prompt="@Strings.OffsetPrompt">
+            <settingConfig type="numeric" min="-25" max="25"/>
+        </setting>
+    </group>
+
+    <group id="Sensor3" title="@Strings.GrpS3">
+        <setting propertyKey="@Properties.T2Label" title="@Strings.LabelTitle">
+            <settingConfig type="alphaNumeric" maxLength="12"/>
+        </setting>
+        <setting propertyKey="@Properties.T2ID" title="@Strings.IDTitle" prompt="@Strings.IDPrompt">
+            <settingConfig type="numeric" min="-2"/>
+        </setting>
+        <setting propertyKey="@Properties.T2Offset" title="@Strings.OffsetTitle" prompt="@Strings.OffsetPrompt">
+            <settingConfig type="numeric" min="-25" max="25"/>
+        </setting>
+    </group>
+
+    <group id="Advanced" title="@Strings.GrpAdvanced">
+        <setting propertyKey="@Properties.Timeout" title="@Strings.TimeoutTitle" prompt="@Strings.TimeoutPrompt">
+            <settingConfig type="list">
+                <listEntry value="300">@Strings.Min5</listEntry>
+                <listEntry value="600">@Strings.Min10</listEntry>
+                <listEntry value="1200">@Strings.Min20</listEntry>
+                <listEntry value="1800">@Strings.Min30</listEntry>
+                <listEntry value="3600">@Strings.Min60</listEntry>
+            </settingConfig>
+        </setting>
+        <setting propertyKey="@Properties.Dbg" title="@Strings.DbgTitle" prompt="@Strings.DbgPrompt">
+            <settingConfig type="boolean"/>
+        </setting>
+    </group>
 </settings>
 
 </resources>

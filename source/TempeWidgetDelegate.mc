@@ -55,10 +55,13 @@ class TempeWidgetDelegate extends WatchUi.BehaviorDelegate {
         //WatchUi.pushView(new Rez.Menus.MainMenu(), new TempeWidgetMenuDelegate(), WatchUi.SLIDE_UP);
         return true;
     }
-    //Paging wraps within the slots TempeCount makes visible, not all cTempItem.
+    //Paging wraps within the slots that currently have something to show.
+    //A page can vanish while it is on screen (a Tempe timing out); the view
+    //clamps screenNum on its next draw, so an off-by-one here is harmless.
     function cVisible()
     {
-        return(mainView.state.cTempe);
+        var c = mainView.state.rgVisible().size();
+        return((c < 1) ? 1 : c);
     }
 
     function nextScreen() 
