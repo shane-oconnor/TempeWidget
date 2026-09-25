@@ -52,7 +52,8 @@ class TempeWidgetDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onMenu() {
-        //WatchUi.pushView(new Rez.Menus.MainMenu(), new TempeWidgetMenuDelegate(), WatchUi.SLIDE_UP);
+        WatchUi.pushView(buildMainMenu(mainView.state),
+                         new TempeWidgetMenuDelegate(mainView.state), WatchUi.SLIDE_UP);
         return true;
     }
     //Paging wraps within the slots that currently have something to show.
