@@ -2,8 +2,31 @@
 
 **Draft for the 1.1.0 release.** Sections 1–3 below hold what will be
 submitted: the version field, the full description and the What's New entry.
-Nothing in this draft has been uploaded. The notes on the 1.0.0 release that
-follow are kept as the record of what is live now.
+Nothing in this draft has been uploaded to the main listing. The notes on the
+1.0.0 release that follow are kept as the record of what is live now.
+
+## Beta: `1.1.0 beta 1`, uploaded 2026-09-25
+
+Shane was away from the watch, so the release candidate went up as a separate
+**beta app** rather than a sideload:
+
+- Listing: https://apps.garmin.com/apps/f598a2ac-0a77-4d9e-acfd-971e3d3a63c1
+- Title `TempeWidget Beta`, version field `1.1.0 beta 1`, category Weather,
+  ANT+ profile Environment, contact and source URL as the main listing.
+- Built with `tools/build-beta.sh` from the `housekeeping` branch at `1f2e418`
+  plus the script commit: manifest id `7c1d9a2e-5b64-4f0e-9d3a-2e8f6b1c4a57`,
+  app name "TempeWidget Beta", 3,399,480 bytes, 154 of 154 devices.
+- The portal's **Beta App** checkbox ("This app is for testing purposes only")
+  makes it a Garmin beta: the page says *"Only you will be able to download and
+  test the app"*, it is installed from the Connect IQ phone app on the same
+  Garmin account, and it sits under "Beta Apps" on the developer dashboard.
+  A beta id can never become a public app - the public release goes to the
+  main listing under the real id, as planned.
+- The verification panel said `Status: Verified` and `Signature check
+  failed.`; the validate response had an empty `validationResult` with
+  `signatureCheckSuccessFul: false`. For a brand-new app id there is no earlier
+  key to match, and the form accepted it. The main listing's stored file
+  reports `true` with the same key.
 
 ---
 
@@ -81,7 +104,7 @@ reading arrived, the tempe's battery, and the sensor's ID so two tempes can be
 told apart. The label takes a colour from the temperature, blue through red.
 The page for your watch's own sensor draws the last six hours as a line.
 
-Long-press the screen (or press the menu button) for a menu on the watch: a
+Hold the UP button (or press the menu button) for a menu on the watch: a
 list of which tempe each slot is using, "Forget Tempes" to start the search
 over, and the battery and white background switches.
 
@@ -194,9 +217,9 @@ stays as it is.
 - Shows the sensor's ID under its label, so two tempes can be told apart
 - The watch's own sensor page draws the last six hours as a line, with that
   window's low and high
-- A menu on the watch (long press or menu button): which tempe each slot is
-  using, Forget Tempes to search again, and the battery and white background
-  switches
+- A menu on the watch (hold UP or press the menu button): which tempe each
+  slot is using, Forget Tempes to search again, and the battery and white
+  background switches
 - The Connect IQ settings are grouped, the timeout is a list of minutes, and
   the ID codes are explained under the setting instead of in its title
 
