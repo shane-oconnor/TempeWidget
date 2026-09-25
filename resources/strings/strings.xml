@@ -1,17 +1,29 @@
 <strings>
     <string id="AppName" scope="Background">TempeWidget</string>
-    <string id="T0IDTitle">Tempe 0 ID (-1=internal, -2=paired, 0=any unpaired)</string>
-    <string id="T1IDTitle">Tempe 1 ID (-1=internal, -2=paired, 0=any unpaired)</string>
-    <string id="T2IDTitle">Tempe 2 ID (-1=internal, -2=paired, 0=any unpaired)</string>
-    <string id="T0LabelTitle">Tempe 0 Name</string>
-    <string id="T1LabelTitle">Tempe 1 Name</string>
-    <string id="T2LabelTitle">Tempe 2 Name</string>
-    <string id="T0OffsetTitle">Tempe 0 Offset °C</string>
-    <string id="T1OffsetTitle">Tempe 1 Offset °C</string>
-    <string id="T2OffsetTitle">Internal Offset °C</string>
-    <string id="TimeoutTitle">Cache/Timeout period in seconds</string>
-    <string id="WhiteBGTitle">White Background</string>
-    <string id="DbgTitle">Debug Mode</string>
-    <string id="BtryTitle">Show Tempe Battery Level</string>
-    <string id="TempeCountTitle">Number of Tempe (choose 1-3, default = 3)</string>
+
+    <string id="GrpDisplay">Display</string>
+    <string id="GrpS1">Sensor 1</string>
+    <string id="GrpS2">Sensor 2</string>
+    <string id="GrpS3">Sensor 3</string>
+    <string id="GrpAdvanced">Advanced</string>
+
+    <string id="LabelTitle">Name</string>
+    <string id="IDTitle">Sensor ID</string>
+    <string id="IDPrompt">0 = find a Tempe automatically (its ID is filled in here once found). -1 = the watch's own sensor. -2 = a Tempe paired in the watch's sensor menu. Or type a Tempe's ANT ID.</string>
+    <string id="OffsetTitle">Offset (°C)</string>
+    <string id="OffsetPrompt">Added to every reading from this sensor, in °C, before any conversion to °F.</string>
+
+    <string id="TimeoutTitle">Keep a reading for</string>
+    <string id="TimeoutPrompt">How long a reading stays on screen after the sensor goes quiet. It dims at the halfway point.</string>
+    <string id="Min5">5 minutes</string>
+    <string id="Min10">10 minutes</string>
+    <string id="Min20">20 minutes</string>
+    <string id="Min30">30 minutes</string>
+    <string id="Min60">60 minutes</string>
+
+    <string id="WhiteBGTitle">White background</string>
+    <string id="BtryTitle">Show Tempe battery</string>
+    <string id="BtryPrompt">The battery page can take a few minutes to arrive after a Tempe is found.</string>
+    <string id="DbgTitle">Debug mode</string>
+    <string id="DbgPrompt">Writes sensor and channel events to the log.</string>
 </strings>

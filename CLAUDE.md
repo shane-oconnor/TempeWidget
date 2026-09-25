@@ -14,7 +14,7 @@ Users configure which sources to monitor and their labels/offsets in the app set
 
 ## Architecture
 
-The project follows an MVC pattern across 6 source files in `source/`:
+The project follows an MVC pattern across 8 source files in `source/`:
 
 | File | Role |
 |---|---|
@@ -24,6 +24,7 @@ The project follows an MVC pattern across 6 source files in `source/`:
 | `TempeWidgetGlanceView.mc` | **Glance view** — three columns showing slot 0's current reading, 24hr min and 24hr max |
 | `TempeWidgetDelegate.mc` | **Controller** — swipe/button input, page navigation |
 | `TempeWidgetSensor.mc` | ANT+ channel management — fully isolated from UI; communicates back via `updateTempeTemp()` |
+| `TempeWidgetScanner.mc` | One background-scanning ANT channel that hears every Tempe and reports device numbers to `State.onTempeSeen()` |
 | `TempeWidgetCommon.mc` | Shared constants (colors, fonts), no logic |
 
 **Resource files:**
@@ -37,7 +38,10 @@ The project follows an MVC pattern across 6 source files in `source/`:
 ## Key Architecture Decisions
 
 ### TempItem slots
-There are always exactly 3 temperature slots (`cTempItem = 3` in Common.mc). Each is a `TempItem` instance holding: device ID, label, offset, current temp, min/max, battery status, and last-seen timestamp. The number of visible slots can be reduced via the `TempeCount` setting, which `State.updateSettings()` clamps to 1–3 and exposes as `State.cTempe`. Slots at or above `cTempe` are not polled, get no ANT channel, and are skipped by the view and by page navigation — but `checkTimeout()` still runs over all 3, so a hidden slot's cached reading still expires.
+There are always exactly 3 temperature slots (`cTempItem = 3` in Common.mc). Each is a `TempItem` instance holding: device ID, label, offset, current temp, min/max, battery status, and last-seen timestamp. There is no count setting: `State.rgVisible()` returns the slots that currently get a page, which is every slot with a negative ID (internal or paired) plus every Tempe slot that holds a reading that has not timed out. The view, delegate and glance page over that list; `checkTimeout()` still runs over all 3.
+
+### Automatic discovery
+A slot whose ID is `0` does not open its own wildcard channel. Instead `State.updateSettings()` opens one `TempeScanner` (`TempeWidgetScanner.mc`): a receive-only ANT channel with background scanning on, which hears every Tempe in range and reports each device number to `State.onTempeSeen()`. That hands the number to the first waiting slot, which writes it back to the `T<n>ID` property with `Properties.setValue()` and opens a normal `TempeWidgetSensor` channel to that one sensor. The scanner is released once no slot is waiting. If the scanner channel cannot be acquired, the old per-slot wildcard search runs instead. Setting an ID back to `0` in the Connect app restarts discovery for that slot.
 
 ### Device ID scheme
 | ID | Meaning |
