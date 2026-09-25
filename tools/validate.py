@@ -107,6 +107,14 @@ def check_string_references(declared):
             if m.group(1) not in declared:
                 err(f"{rel(path)}: @Strings.{m.group(1)} is referenced but not declared "
                     f"in resources/strings/strings.xml")
+    # Monkey C reaches a string as Rez.Strings.Name, which is just as much a
+    # consumer as a resource file's @Strings.Name.
+    for path in source_files():
+        for m in re.finditer(r"Rez\.Strings\.([A-Za-z0-9_]+)", read(path)):
+            used.add(m.group(1))
+            if m.group(1) not in declared:
+                err(f"{rel(path)}: Rez.Strings.{m.group(1)} is referenced but not declared "
+                    f"in resources/strings/strings.xml")
     for name in sorted(set(declared) - used):
         warn(f"resources/strings/strings.xml: string '{name}' is declared but never referenced")
 
