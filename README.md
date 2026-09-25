@@ -5,7 +5,12 @@
 A Garmin Connect IQ widget that shows temperature from up to three sources at
 once — ANT+ [tempe](https://www.garmin.com/en-US/p/107335) sensors, the watch's
 own internal sensor, or a tempe paired over Bluetooth — each with its own
-label, calibration offset, and min/max range since the reading was first seen.
+label, calibration offset, and the tempe's own 24 hour low and high.
+
+Tempes are found automatically: the widget listens for every tempe in range and
+binds each one to a slot, so two tempes land on two pages without typing ANT
+IDs into the phone. A sensor that is switched off, out of range or not owned
+simply has no page.
 
 Written in Monkey C. Available on the
 [Connect IQ Store](https://apps.garmin.com/), and buildable from source with
@@ -13,32 +18,41 @@ the Connect IQ SDK.
 
 ## Display
 
-Each source gets its own page; swipe up/down or press next/previous to move
-between them. A glance view shows all three at once in the widget carousel.
+Each source with a reading gets its own page; swipe up/down or press
+next/previous to move between them. The glance shows the first tempe's
+temperature with its 24 hour low and high.
 
 | Shown | Notes |
 |---|---|
-| Current temperature | °C or °F, following the watch's system units |
-| Min / Max | Lowest and highest seen since the reading was cached |
+| Current temperature | °C or °F, following the watch's system units; drawn large, in a vector font where the watch has one |
+| Low / High | The tempe's own 24 hour range, with a bar showing where the reading sits in it |
+| Six hour history | On the internal sensor page, the watch's own temperature record as a line |
 | Battery | ANT+ sensors only; flagged when `LOW` or `CRITICAL` |
 | Age | How long ago the reading arrived |
+| ANT id | Under the label, so two tempes can be told apart |
 
-Readings are cached in `Application.Storage`, so they survive the widget being
-backgrounded. A reading older than the configured timeout is discarded.
+The label takes a colour from the temperature band (blue through red). Readings
+are cached in `Application.Storage`, so they survive the widget being
+backgrounded. A reading past half its timeout is dimmed; past the timeout it is
+cleared and its page disappears.
+
+Long-press (or the menu button) opens a menu on the watch: a list of which
+sensor each slot is bound to, "Forget Tempes" to start the search over, and
+toggles for the battery icon and the white background.
 
 ## Settings
 
 Configured per-device in the Garmin Connect app under the widget's settings.
 
-| Setting | Default | Meaning |
-|---|---|---|
-| `Tempe 0/1/2 ID` | `0`, `0`, `-1` | Which sensor feeds this slot — see below |
-| `Tempe 0/1/2 Name` | `Tempe1`, `Tempe2`, `Internal` | Label drawn above the reading (max 12 chars) |
-| `Tempe 0/1/2 Offset °C` | `0.0` | Calibration offset, −25 to +25, applied at display time only |
-| `Cache/Timeout period` | `1200` | Seconds before a reading is considered stale and cleared |
-| `White Background` | off | Inverts the colour scheme |
-| `Show Tempe Battery Level` | on | Draws the battery indicator |
-| `Debug Mode` | off | Enables diagnostic output in the simulator |
+| Group | Setting | Default | Meaning |
+|---|---|---|---|
+| Display | `White background` | off | Inverts the colour scheme |
+| Display | `Show Tempe battery` | on | Draws the battery indicator |
+| Sensor 1/2/3 | `Name` | `Tempe1`, `Tempe2`, `Internal` | Label drawn above the reading (max 12 chars) |
+| Sensor 1/2/3 | `Sensor ID` | `0`, `0`, `-1` | Which sensor feeds this slot — see below |
+| Sensor 1/2/3 | `Offset (°C)` | `0.0` | Calibration offset, −25 to +25, applied at display time only |
+| Advanced | `Keep a reading for` | 20 minutes | How long a reading stays after the sensor goes quiet |
+| Advanced | `Debug mode` | off | Enables diagnostic output in the simulator |
 
 The ID field selects the source for that slot:
 
@@ -46,24 +60,22 @@ The ID field selects the source for that slot:
 |---|---|
 | `-1` | The watch's internal temperature sensor |
 | `-2` | A tempe paired over Bluetooth |
-| `0` | Any unpaired ANT+ tempe (auto-discover) |
+| `0` | Find a tempe automatically |
 | `> 0` | A specific ANT+ device number |
 
-Slots with a specific device number are claimed before wildcard slots, so a
-`0` slot cannot steal a sensor that another slot is pinned to.
+A `0` slot is filled by the first tempe the scanner hears that no other slot
+already has, and the device number is then written into that slot's ID setting
+so the label and offset stay with that physical sensor. Set the ID back to `0`
+(or use "Forget Tempes" on the watch) to search again.
 
-> **Known issue:** the `Number of Tempe` setting is present in the settings
-> menu but is not read by the app — all three slots are always active. See
-> [#2](https://github.com/shane-oconnor/TempeWidget/issues/2).
-
-Changing a setting currently takes effect when the widget next starts, not
-immediately.
+Settings take effect while the widget is open.
 
 ## Supported devices
 
-43 products, listed in [`manifest.xml`](manifest.xml): fēnix 6/7/8-era and
-fēnix 9 Pro, epix 2 and epix Pro, MARQ and MARQ 2, Forerunner 55/255/265/745/
-945/955/965, Instinct 2 / Crossover, and Descent G1.
+96 products, listed in [`manifest.xml`](manifest.xml): the fēnix 6 to 9
+lines, epix 2 and epix Pro, MARQ and MARQ 2, Enduro, Forerunner 55 to 965,
+Venu 2 to 4, vívoactive 4 and 5, Instinct 2 and 3 / Crossover, Descent and
+D2.
 
 Minimum API level **3.2.0**. Requires the `Ant`, `Sensor` and `SensorHistory`
 permissions.
@@ -97,7 +109,8 @@ checks the things the compiler is silent about:
 - unresolved merge-conflict markers in tracked files
 - XML well-formedness of the manifest and every resource
 - duplicate `<iq:product>` ids
-- `@Strings.*` references that resolve to nothing, and unused strings
+- `@Strings.*` and `Rez.Strings.*` references that resolve to nothing, and
+  unused strings
 - `@Properties.*` settings entries with no matching property
 - properties declared and offered in the settings menu that no source file
   reads (keys built by concatenation, like `"T" + i + "ID"`, are matched as
@@ -124,7 +137,7 @@ rather than written by hand — is kept in
 [`docs/store-listing.md`](docs/store-listing.md), versioned alongside the
 release it describes.
 
-Launcher icons are per-device: 29 of the 43 products want 40x40 and use
+Launcher icons are per-device: 41 of the 96 products want 40x40 and use
 `resources/drawables/Therm2d.png`; the rest are rendered by
 [`tools/make-icons.py`](tools/make-icons.py) into `resources-icon<N>/` and
 mapped in `monkey.jungle`. When adding a product, check its
@@ -141,6 +154,8 @@ the id to `SIZES`, rerun the script, and add a `resourcePath` line.
 | `source/TempeWidgetGlanceView.mc` | Compact glance view |
 | `source/TempeWidgetDelegate.mc` | Input and page navigation |
 | `source/TempeWidgetSensor.mc` | ANT+ channel management, isolated from the UI |
+| `source/TempeWidgetScanner.mc` | One background-scanning ANT channel that finds every tempe in range |
+| `source/TempeWidgetMenuDelegate.mc` | The on-device menu |
 | `source/TempeWidgetCommon.mc` | Shared constants and helpers |
 
 Temperatures are stored as integers in 0.01 °C units; ANT+ min/max payloads
