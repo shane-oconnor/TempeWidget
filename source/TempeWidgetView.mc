@@ -81,7 +81,7 @@ class TempeWidgetView extends WatchUi.View {
         var idNow = item.getID();
 
         var tAdj = item.tempAdj();
-        var strLbl  = fSearch ? "Tempe" : item.lbl;
+        var strLbl  = item.lbl;
         var strID   = (fTempe && (idNow != null) && (idNow > 0)) ? "#" + idNow : null;
         var strHero = strTempGlance(tAdj);
         var strUnit = strUnit();
