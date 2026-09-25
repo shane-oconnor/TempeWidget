@@ -1,4 +1,34 @@
-# Connect IQ Store listing — v1.0.0, published
+# Connect IQ Store listing — v1.1.0 draft (1.0.0 is what is live)
+
+**Draft for the 1.1.0 release.** Sections 1–3 below hold what will be
+submitted: the version field, the full description and the What's New entry.
+Nothing in this draft has been uploaded to the main listing. The notes on the
+1.0.0 release that follow are kept as the record of what is live now.
+
+## Beta: `1.1.0 beta 1`, uploaded 2026-09-25
+
+Shane was away from the watch, so the release candidate went up as a separate
+**beta app** rather than a sideload:
+
+- Listing: https://apps.garmin.com/apps/f598a2ac-0a77-4d9e-acfd-971e3d3a63c1
+- Title `TempeWidget Beta`, version field `1.1.0 beta 1`, category Weather,
+  ANT+ profile Environment, contact and source URL as the main listing.
+- Built with `tools/build-beta.sh` from the `housekeeping` branch at `1f2e418`
+  plus the script commit: manifest id `7c1d9a2e-5b64-4f0e-9d3a-2e8f6b1c4a57`,
+  app name "TempeWidget Beta", 3,399,480 bytes, 154 of 154 devices.
+- The portal's **Beta App** checkbox ("This app is for testing purposes only")
+  makes it a Garmin beta: the page says *"Only you will be able to download and
+  test the app"*, it is installed from the Connect IQ phone app on the same
+  Garmin account, and it sits under "Beta Apps" on the developer dashboard.
+  A beta id can never become a public app - the public release goes to the
+  main listing under the real id, as planned.
+- The verification panel said `Status: Verified` and `Signature check
+  failed.`; the validate response had an empty `validationResult` with
+  `signatureCheckSuccessFul: false`. For a brand-new app id there is no earlier
+  key to match, and the form accepted it. The main listing's stored file
+  reports `true` with the same key.
+
+---
 
 **Published 2026-09-20.** The live listing now reads `1.0.0 fēnix 8/9`,
 replacing `0.68 Added EPIX`. Uploaded `export/TempeWidget.iq` at 2,417,396
@@ -29,13 +59,12 @@ Update it when the listing changes, and note what actually went live.
 
 ## 1. Version field
 
-The Store version field is free text. It currently reads `0.68 Added EPIX`.
+The Store version field is free text. It currently reads `1.0.0 fēnix 8/9`
+(live since 2026-09-20, when it replaced `0.68 Added EPIX`).
 
 ```
-1.0.0 fēnix 8/9
+1.1.0 auto Tempe
 ```
-
-**This is what went live on 2026-09-20**, replacing `0.68 Added EPIX`.
 
 **The field is capped at 20 characters.** That is not documented anywhere -
 it is `maxlength=20` on the input, and it only appears during *Upload New
@@ -64,33 +93,44 @@ Bluetooth. Swipe up and down to move between them, or use the glance view to
 see the first sensor's temperature alongside its 24hr min and max without
 opening the widget.
 
-Each slot is configured separately, with its own name, ID and calibration
-offset.
+Your tempes are found automatically. Switch them on, open the widget, and each
+one gets its own page - two tempes land on two pages without typing any ID
+into the phone. A sensor that is switched off or out of range simply has no
+page, so there is nothing to count or configure.
 
-Number of Tempe - choose 1, 2 or 3. Slots beyond the number you pick are
-hidden, skipped when paging, and no longer searched for, so if you only want
-one tempe and your watch's internal sensor you are not left swiping past an
-empty third screen.
+Each page shows the reading large, with the tempe's 24hr low and high beneath
+it and a bar showing where the reading sits between them, how long ago the
+reading arrived, the tempe's battery, and the sensor's ID so two tempes can be
+told apart. The label takes a colour from the temperature, blue through red.
+The page for your watch's own sensor draws the last six hours as a line.
 
-ID - By default this should be "0", which means this will connect to the first
-available Tempe Sensor. If you want to connect to a specific Tempe Sensor then
-add the ID number here. The easiest way to get that number is to pair the tempe
-and see what ID is given. My Tempe has a 6 digit number. Use -1 for your
-watch's internal temperature sensor, or -2 for a tempe paired over Bluetooth.
+Hold the UP button (or press the menu button) for a menu on the watch: a
+list of which tempe each slot is using, "Forget Tempes" to start the search
+over, and the battery and white background switches.
+
+Each slot is configured separately in the Connect IQ app, with its own name,
+ID and calibration offset.
+
+Sensor ID - leave this at 0 and the widget fills it in with the first tempe it
+finds that no other slot is using, so the name and offset stay with that
+tempe from then on. Set it back to 0 to search again. You can also type a
+tempe's ANT ID yourself. Use -1 for your watch's internal temperature sensor,
+or -2 for a tempe paired over Bluetooth.
 
 Please note the 24hr min and max are reported by the tempe sensor itself, so
-they are only available on tempe slots. A slot using the watch's internal sensor
-or a tempe paired over Bluetooth shows the current temperature on its own - the
-Min and Max lines are simply not shown for it, and the glance shows "--" in
-their place. Some watches don't give access to the internal sensor or to a
-paired tempe at all; where the watch doesn't provide a reading you will see
-"--". Sorry, I can't override this.
+they are only available on tempe slots. A slot using the watch's internal
+sensor shows the watch's own six hour history and that window's low and high
+instead; a tempe paired over Bluetooth shows the current temperature on its
+own. Some watches don't give access to the internal sensor or to a paired
+tempe at all; where the watch doesn't provide a reading you will see "--".
+Sorry, I can't override this.
 
 Name - the label shown above the reading, up to 12 characters. Handy if you have
 one tempe outside and one in the shed.
 
-Timeout - how long the widget retains a value when it isn't getting updated.
-Once the timeout passes the reading is cleared.
+Keep a reading for - how long the widget keeps a value when it isn't getting
+updated. The reading dims at the halfway point; once the time passes it is
+cleared and the page goes with it.
 
 Tempe C Offset - use this setting to calibrate your tempe. Allows you to enter a
 positive or negative temperature in Celsius into this field. This will adjust
@@ -108,15 +148,11 @@ irrespective of whether the battery is new or old.
 White Background - switches the display to dark text on a white background,
 including the glance view.
 
-Settings take effect straight away. Changing a name, offset, ID or the number
-of slots applies while the widget is open, without closing and reopening it.
+Settings take effect straight away. Changing a name, offset or ID applies
+while the widget is open, without closing and reopening it.
 
-A reading that is more than halfway to its timeout is drawn dimmed, so you can
-tell at a glance that a sensor has gone quiet before the value disappears
-altogether.
-
-Debug - if you set this to true, the current ID will be shown on the full widget
-page with each temperature.
+Debug - if you set this to true, sensor and channel events are written to the
+log.
 
 The source code is on GitHub at https://github.com/shane-oconnor/TempeWidget -
 issues and suggestions are welcome there.
@@ -166,6 +202,27 @@ This field holds the whole changelog, so the new entry goes on top and the rest
 stays as it is.
 
 ```
+1.1.0 auto Tempe
+
+- Tempes are found automatically. One scanning channel hears every tempe in
+  range and gives each its own page, so two tempes no longer race for the same
+  slot. The ID a slot settles on is written into its setting so the name and
+  offset stay with that tempe
+- The "Number of Tempe" setting is gone. A sensor has a page while it has a
+  reading; one that is off or out of range has none
+- The full view is redrawn: the reading is large, in a vector font on watches
+  that have one, with the 24hr low and high beneath it and a bar showing where
+  the reading sits between them. The label is coloured by temperature
+- Shows how long ago each reading arrived, as asked for in the reviews
+- Shows the sensor's ID under its label, so two tempes can be told apart
+- The watch's own sensor page draws the last six hours as a line, with that
+  window's low and high
+- A menu on the watch (hold UP or press the menu button): which tempe each
+  slot is using, Forget Tempes to search again, and the battery and white
+  background switches
+- The Connect IQ settings are grouped, the timeout is a list of minutes, and
+  the ID codes are explained under the setting instead of in its title
+
 1.0.0 fēnix 8/9, Venu 3/4, Instinct 3 and more
 
 - The "Number of Tempe" setting now works. It has been in the settings menu
@@ -182,22 +239,14 @@ stays as it is.
   that has gone quiet is visible before the value disappears
 - Fixed sub-zero temperatures reading slightly too warm. Below freezing the
   current reading was out by 0.01 C and the 24hr min and max by 0.1 C
-- Fixed a crash that could occur every few seconds on watches with no stored
-  temperature history, for example after a reboot
-- Fixed cached readings being timed against a clock that resets when the watch
-  restarts, so values could expire early or linger
-- Fixed the temperature offset showing "--" instead of applying the offset
-- Fixed the battery icon ignoring the White Background setting
+- Fixed a crash every few seconds on watches with no stored temperature
+  history, cached readings timed against a clock that resets on restart, the
+  offset showing "--", and the battery icon ignoring White Background
 - A critical tempe battery level is now flagged, not just a low one
 - Rebuilt the full screen layout so it scales to the watch screen instead of
-  being fixed to one size. This should fix the widget on screens that are not
-  260x260 - the Forerunner 965 and Instinct 2S in particular, where the old
-  layout was drawn at the wrong size
-- Sharper launcher icon on watches that ask for a larger one, instead of a
-  scaled up 40x40
-- Debug logging no longer runs with Debug Mode switched off
-- Cached readings are written to storage only when they change, rather than
-  fifteen times every five seconds
+  being fixed to 260x260, which should fix the Forerunner 965 and Instinct 2S
+- Sharper launcher icons, debug logging only in Debug Mode, and far fewer
+  storage writes
 - Source code published at https://github.com/shane-oconnor/TempeWidget
 
 After updating, temperatures may show "--" once on the first launch while the

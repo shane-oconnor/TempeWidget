@@ -14,15 +14,16 @@ Users configure which sources to monitor and their labels/offsets in the app set
 
 ## Architecture
 
-The project follows an MVC pattern across 8 source files in `source/`:
+The project follows an MVC pattern across 9 source files in `source/`:
 
 | File | Role |
 |---|---|
 | `TempeWidgetApp.mc` | App lifecycle shell — creates State and View, nothing else |
 | `TempeWidgetState.mc` | **Model** — holds global state, initializes sensors, runs the 5s timer, manages `TempItem` objects |
-| `TempeWidgetView.mc` | **Main view** — full-screen rendering of current/min/max temp + battery indicator |
+| `TempeWidgetView.mc` | **Main view** — one page per visible sensor: large reading, 24h low/high with range bar, age, battery; six hour history line on the internal page |
 | `TempeWidgetGlanceView.mc` | **Glance view** — three columns showing slot 0's current reading, 24hr min and 24hr max |
-| `TempeWidgetDelegate.mc` | **Controller** — swipe/button input, page navigation |
+| `TempeWidgetDelegate.mc` | **Controller** — swipe/button input, page navigation, opens the menu |
+| `TempeWidgetMenuDelegate.mc` | On-device `Menu2`: sensors list, Forget Tempes, battery and background toggles |
 | `TempeWidgetSensor.mc` | ANT+ channel management — fully isolated from UI; communicates back via `updateTempeTemp()` |
 | `TempeWidgetScanner.mc` | One background-scanning ANT channel that hears every Tempe and reports device numbers to `State.onTempeSeen()` |
 | `TempeWidgetCommon.mc` | Shared constants (colors, fonts), no logic |
@@ -61,7 +62,10 @@ When creating `TempeWidgetSensor` objects, specific device IDs (`>0`) are initia
 `Application.Storage` caches each slot's last temperature, min/max, battery status, and timestamp. Data survives the widget being backgrounded between timer ticks.
 
 ### Expiry system
-`checkTimeout()` runs every 5 seconds. At 50% of timeout (default 1200s), the slot is marked "expiring" and rendered with reduced opacity. At 100%, data is cleared. This surfaces stale data visually without hard-cutting it.
+`checkTimeout()` runs every 5 seconds. At 50% of timeout (default 1200s), the slot is marked "expiring" and rendered dimmed. At 100%, data is cleared, which also removes a Tempe slot's page (see `rgVisible()`). This surfaces stale data visually without hard-cutting it.
+
+### Version string
+A Connect IQ manifest has no version field. `Rez.Strings.Version` (shown in the on-device menu title) is bumped by hand with each Store release, alongside the git tag and the Store's own 20-character version field recorded in `docs/store-listing.md`.
 
 ### Temperature units
 Temperatures are stored internally in **0.01°C units** (integer arithmetic). ANT+ min/max payloads use **0.1°C units**. The temperature offset (`tos`) is a float in °C and is applied at render time, not storage time. Unit conversion (°C → °F) also happens at render time only.
@@ -82,7 +86,7 @@ Temperatures are stored internally in **0.01°C units** (integer arithmetic). AN
 | `c` | Count constant | `cTempItem` |
 
 ### Constants (TempeWidgetCommon.mc)
-- Colors: `ClrTrans`, `ClrWhite`, `ClrBlack`, `ClrDkGray`, `ClrLtGray`, `ClrYellow`
+- Colors: `ClrTrans`, `ClrWhite`, `ClrBlack`, `ClrDkGray`, `ClrLtGray`, `ClrYellow`, and the temperature bands `ClrCold`…`ClrHot` (with a `W` variant each for a white background) picked by `clrForTemp()`
 
 Always use these named constants rather than raw hex values for colors.
 
@@ -109,7 +113,7 @@ Settings are read in `TempeWidgetState.mc` using `Properties.getValue("KeyName")
 ### Adding a new app setting
 
 1. Add a `<iq:property>` entry with a default value to `TempWidgetApResources.xml`
-2. Add a matching `<setting>` entry to the settings UI section of `TempWidgetApResources.xml`
+2. Add a matching `<setting>` entry inside the right `<group>` of `TempWidgetApResources.xml` (use `prompt` for the explanatory line)
 3. Add a string label to `resources/strings/strings.xml`
 4. Read the property in `TempeWidgetState.mc` `updateSettings()` using `getProp()` — not `initialize()`, or the setting will not apply until relaunch
 5. Store it as an instance variable on `State` and expose it to the view

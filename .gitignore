@@ -11,6 +11,9 @@ export/
 # macOS
 .DS_Store
 
+# Python bytecode from tools/
+__pycache__/
+
 # Playwright MCP writes page snapshots and console logs here. Once logged in
 # to the Garmin developer portal these contain the account's email address and
 # page state, so they must never be committed. The browser profile itself lives
