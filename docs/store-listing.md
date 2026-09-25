@@ -1,11 +1,22 @@
-# Connect IQ Store listing — v1.1.0 draft (1.0.0 is what is live)
+# Connect IQ Store listing — v1.1.0, uploaded 2026-09-25
 
-**Draft for the 1.1.0 release.** Sections 1–3 below hold what will be
-submitted: the version field, the full description and the What's New entry.
-Nothing in this draft has been uploaded to the main listing. The notes on the
-1.0.0 release that follow are kept as the record of what is live now.
+**Uploaded 2026-09-25 as `1.1.0 auto Tempe`.** Shane asked for it to go to
+production from a remote location, without a hardware test, and was told the
+risk; the beta (below) went up first the same evening. Uploaded
+`export/TempeWidget.iq`, 3,396,483 bytes, sha256 `7c22b905…`, built from
+master `71204cd` (tag `v1.1.0`, the same file is attached to the GitHub
+release): 96 products, store export 154 of 154. Edit Details went first:
+new description, What's New prepended over a condensed 1.0.0 entry, four new
+screen images and a new cover. The verification panel read `Status:
+Verified / Signature: Verified`. Straight after submitting, the listing showed
+**"Version update pending"** rather than the new version line, so Garmin now
+holds a new version for a check before it goes live. Compatible Devices were
+still the 1.0.0 set at that moment.
 
-## Beta: `1.1.0 beta 1`, uploaded 2026-09-25
+Sections 1–3 below are what was submitted. The notes on the 1.0.0 release
+that follow are kept for the diff.
+
+## Beta: `1.1.0 beta 1`, uploaded 2026-09-25 (remove once 1.1.0 is live and tested)
 
 Shane was away from the watch, so the release candidate went up as a separate
 **beta app** rather than a sideload:
