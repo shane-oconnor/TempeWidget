@@ -12,6 +12,15 @@ const ClrBlack = 0x000000;//Graphics.COLOR_BLACK;
 const ClrDkGray = 0x555555;//Graphics.COLOR_DK_GRAY;
 const ClrYellow = 0xFFAA00; //Graphics.COLOR_YELLOW;
 
+//Accent by temperature band, one set for a black background and one for white.
+//Only the label and the range marker take the accent; the reading itself stays
+//at full contrast so the number is never harder to read for being warm.
+const ClrCold  = 0x55AAFF; const ClrColdW  = 0x0055AA; //at or below 0
+const ClrCool  = 0x00CCFF; const ClrCoolW  = 0x0088AA; //0 to 10
+const ClrMild  = 0x55DD99; const ClrMildW  = 0x008855; //10 to 20
+const ClrWarm  = 0xFFAA00; const ClrWarmW  = 0xAA5500; //20 to 28
+const ClrHot   = 0xFF5544; const ClrHotW   = 0xAA0000; //above 28
+
 
 //---------------------------------
 //outside of a class
@@ -67,6 +76,36 @@ function fitStr(dc as Graphics.Dc, str as Lang.String,
         out = out.substring(0, out.length() - 1);
     }
     return(out);
+}
+
+//---------------------------------
+//Bands are in °C whatever the display unit, so an offset-adjusted reading is
+//what gets passed in. Null (no reading) takes the muted caption colour.
+function clrForTemp(temp, fWhiteBG)
+{
+    if (temp == null) {return(fWhiteBG ? ClrDkGray : ClrLtGray);}
+    if (temp <= 0)    {return(fWhiteBG ? ClrColdW  : ClrCold);}
+    if (temp < 10)    {return(fWhiteBG ? ClrCoolW  : ClrCool);}
+    if (temp < 20)    {return(fWhiteBG ? ClrMildW  : ClrMild);}
+    if (temp < 28)    {return(fWhiteBG ? ClrWarmW  : ClrWarm);}
+    return(fWhiteBG ? ClrHotW : ClrHot);
+}
+
+//---------------------------------
+//How long ago a reading arrived, for the full view's footer (issue #17).
+function strAge(tm)
+{
+    if (tm == null) {return("--");}
+    var d = Time.now().value() - tm;
+    if (d < 60)   {return("just now");}
+    if (d < 3600) {return((d / 60).toString() + " min ago");}
+    return((d / 3600).toString() + " h ago");
+}
+
+//---------------------------------
+function strUnit()
+{
+    return((System.getDeviceSettings().temperatureUnits == System.UNIT_METRIC) ? "°C" : "°F");
 }
 
 (:glance)
