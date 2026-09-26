@@ -1,9 +1,15 @@
 # Connect IQ Store listing — v1.1.1
 
-**1.1.1, 2026-09-26.** Shane ran 1.1.0 on the watch with the internal sensor
-only, reported it good, and asked for the glance's "--" min and max to show
-values for that sensor (PR #26). Uploaded from master with the version field
-below; details of the 1.1.0 upload follow.
+**1.1.1 uploaded 2026-09-26 as `1.1.1 glance min/max`.** Shane ran 1.1.0 on
+the watch with the internal sensor only, reported it good, and asked for the
+glance's "--" min and max to show values for that sensor (PR #26). Uploaded
+`export/TempeWidget.iq`, 3,433,013 bytes, sha256 `c4754fb5…`, from master
+`dbf3a0d` (tag `v1.1.1`, .iq attached to the GitHub release): 96 products,
+154 of 154. Panel: `Status: Verified / Signature: Verified`. The 1.1.1 entry
+was prepended to the live What's New on the step 2 form (3762 chars). As with
+1.1.0, the listing then showed "Version update pending" for Garmin's check of
+up to two hours; 1.1.0 had cleared that check overnight. Details of the 1.1.0
+upload follow.
 
 ## Release note: 1.1.0, uploaded 2026-09-25
 
