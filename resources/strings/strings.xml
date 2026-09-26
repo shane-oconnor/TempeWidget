@@ -2,7 +2,7 @@
     <string id="AppName" scope="Background">TempeWidget</string>
     <!-- Shown in the on-device menu title. Bump by hand with each Store release;
          a Connect IQ manifest carries no version of its own. -->
-    <string id="Version">1.1.0</string>
+    <string id="Version">1.1.1</string>
 
     <string id="GrpDisplay">Display</string>
     <string id="GrpS1">Sensor 1</string>

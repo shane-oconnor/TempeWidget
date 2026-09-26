@@ -1,4 +1,11 @@
-# Connect IQ Store listing — v1.1.0, uploaded 2026-09-25
+# Connect IQ Store listing — v1.1.1
+
+**1.1.1, 2026-09-26.** Shane ran 1.1.0 on the watch with the internal sensor
+only, reported it good, and asked for the glance's "--" min and max to show
+values for that sensor (PR #26). Uploaded from master with the version field
+below; details of the 1.1.0 upload follow.
+
+## Release note: 1.1.0, uploaded 2026-09-25
 
 **Uploaded 2026-09-25 as `1.1.0 auto Tempe`.** Shane asked for it to go to
 production from a remote location, without a hardware test, and was told the
@@ -74,8 +81,10 @@ The Store version field is free text. It currently reads `1.0.0 fēnix 8/9`
 (live since 2026-09-20, when it replaced `0.68 Added EPIX`).
 
 ```
-1.1.0 auto Tempe
+1.1.1 glance min/max
 ```
+
+(1.1.0 went up as `1.1.0 auto Tempe`.)
 
 **The field is capped at 20 characters.** That is not documented anywhere -
 it is `maxlength=20` on the input, and it only appears during *Upload New
@@ -213,6 +222,12 @@ This field holds the whole changelog, so the new entry goes on top and the rest
 stays as it is.
 
 ```
+1.1.1 glance min/max
+
+- The glance now shows the watch sensor's six hour low and high when no
+  tempe is present, instead of "--" in the Min and Max columns. The full view
+  already showed them
+
 1.1.0 auto Tempe
 
 - Tempes are found automatically. One scanning channel hears every tempe in
