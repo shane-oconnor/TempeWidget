@@ -3,6 +3,7 @@ import Toybox.System;
 import Toybox.Lang;
 import Toybox.Time;
 import Toybox.Graphics;
+import Toybox.SensorHistory;
 
 
 const ClrTrans = -1;//Graphics.COLOR_TRANSPARENT;
@@ -106,6 +107,24 @@ function strAge(tm)
 function strUnit()
 {
     return((System.getDeviceSettings().temperatureUnits == System.UNIT_METRIC) ? "°C" : "°F");
+}
+
+//---------------------------------
+//The low and high of the watch's own temperature record over the last six
+//hours, for a slot that has no 24 hour pair from a Tempe. The iterator keeps
+//these itself, so nothing is walked. Null where there is no history.
+(:glance)
+function histMinMax() as Lang.Array<Lang.Float>?
+{
+    if (!((Toybox has :SensorHistory) && (SensorHistory has :getTemperatureHistory))) {return(null);}
+    var it = SensorHistory.getTemperatureHistory({:period => new Time.Duration(6 * 3600)});
+    if (it != null)
+    {
+        var vMin = it.getMin();
+        var vMax = it.getMax();
+        if ((vMin != null) && (vMax != null)) {return([vMin, vMax]);}
+    }
+    return(null);
 }
 
 (:glance)

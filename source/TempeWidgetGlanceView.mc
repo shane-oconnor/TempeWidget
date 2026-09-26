@@ -68,9 +68,25 @@ class TempeWidgetGlanceView extends WatchUi.GlanceView {
         var item = rgTemp[i];
         var fDim = item.fExpiring();
 
+        //A Tempe carries its own 24 hour low and high. The watch sensor has
+        //none, so its columns take the six hour low and high of the watch's
+        //own record instead - the same pair the full view draws under the
+        //line - rather than sitting at "--".
+        var tMin = item.minAdj();
+        var tMax = item.maxAdj();
+        if ((item.id == -1) && (tMin == null))
+        {
+            var mm = histMinMax();
+            if (mm != null)
+            {
+                tMin = item.adj(mm[0]);
+                tMax = item.adj(mm[1]);
+            }
+        }
+
         rgLbl[0] = item.lbl;  rgVal[0] = strTempGlance(item.tempAdj()); rgDim[0] = fDim;
-        rgLbl[1] = "Min";     rgVal[1] = strTempGlance(item.minAdj());  rgDim[1] = fDim;
-        rgLbl[2] = "Max";     rgVal[2] = strTempGlance(item.maxAdj());  rgDim[2] = fDim;
+        rgLbl[1] = "Min";     rgVal[1] = strTempGlance(tMin);           rgDim[1] = fDim;
+        rgLbl[2] = "Max";     rgVal[2] = strTempGlance(tMax);           rgDim[2] = fDim;
 
 
         //--- fonts, sized once so every column matches -----------------------

@@ -21,7 +21,7 @@ The project follows an MVC pattern across 9 source files in `source/`:
 | `TempeWidgetApp.mc` | App lifecycle shell — creates State and View, nothing else |
 | `TempeWidgetState.mc` | **Model** — holds global state, initializes sensors, runs the 5s timer, manages `TempItem` objects |
 | `TempeWidgetView.mc` | **Main view** — one page per visible sensor: large reading, 24h low/high with range bar, age, battery; six hour history line on the internal page |
-| `TempeWidgetGlanceView.mc` | **Glance view** — three columns showing slot 0's current reading, 24hr min and 24hr max |
+| `TempeWidgetGlanceView.mc` | **Glance view** — three columns: the first visible Tempe's reading with its 24hr min and max; falls back to the internal sensor with the watch's six hour low and high (`histMinMax()` in Common) |
 | `TempeWidgetDelegate.mc` | **Controller** — swipe/button input, page navigation, opens the menu |
 | `TempeWidgetMenuDelegate.mc` | On-device `Menu2`: sensors list, Forget Tempes, battery and background toggles |
 | `TempeWidgetSensor.mc` | ANT+ channel management — fully isolated from UI; communicates back via `updateTempeTemp()` |
